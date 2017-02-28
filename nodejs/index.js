@@ -51,9 +51,7 @@ bot.dialog('/', function (session) {
       try {
         var data = res['data'];
 
-        var first = data[0];
-
-        var images = first.images;
+        var images = data.images;
 
         var original = images.original;
 
