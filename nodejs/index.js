@@ -63,8 +63,24 @@ bot.dialog('/', function (session) {
         session.send('Sorry, I couldn\'t find a gif for: ' + string);
       }
     });
+  } else if (command === "help") {
+    session.send('All I do is gif');
   } else {
-    session.send('Did you mean \'gif\'?');
+    var invalidResponses = [
+      "It looks like you're trying to gif. Would you like help?",
+      "It looks like you're trying to meme. Would you like me to gif?",
+      "It looks like you're trying to win. Would you like help?",
+      "It looks like you're trying to work. Would you like me to bug you?",
+      "It looks like you're trying to write a book. Would you like help?",
+      "It looks like you're trying to write a letter. Would you like help?",
+      "It looks like you're trying to write a speech. Would you like help?",
+      "It looks like you're trying to write an autobiography. Would you like help?",
+      "It looks like you're trying to write some javascript. Would you like help?"
+    ];
+
+    var response = invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
+
+    session.send(response);
   }
 
 });
