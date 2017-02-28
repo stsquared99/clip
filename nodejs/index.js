@@ -27,11 +27,25 @@ server.post('/api/messages', connector.listen());
 bot.dialog('/', function (session) {
   session.send("hello");
 
+  console.log(session.message);
+
+  var query = "puppies";
+
   giphy.search({
-      q: 'pokemon',
+      q: query,
       rating: 'g'
   }, function(err, res) {
-    session.send(res);
+    var data = res['data'];
+
+    var first = data[0];
+
+    var images = first.images;
+
+    var original = images.original;
+
+    var url = original.url;
+
+    session.send(url);
   });
 
   session.send("bye");
