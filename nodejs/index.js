@@ -42,10 +42,10 @@ bot.dialog('/', function (session) {
   console.log('parameters: ', parameters);
 
   if (command === "gif") {
-    var query = parameters;
+    var string = parameters;
 
-    giphy.search({
-        q: query,
+    giphy.translate({
+        s: string,
         rating: 'g'
     }, function(err, res) {
       try {
@@ -62,7 +62,7 @@ bot.dialog('/', function (session) {
         session.send(url);
       }
       catch (e) {
-        session.send('Sorry, I couldn\'t find a gif for: ' + query);
+        session.send('Sorry, I couldn\'t find a gif for: ' + string);
       }
     });
   } else {
