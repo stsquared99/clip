@@ -25,24 +25,48 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
-  session.send(session.message);
+  var x = session.message.text;
 
-  var query = "puppies";
+  var message = x.toLowerCase();
 
-  giphy.search({
-      q: query,
-      rating: 'g'
-  }, function(err, res) {
-    var data = res['data'];
+  console.log('message: ', message);
 
-    var first = data[0];
+  x = message.replace(/^.*?>.*?> */, '');
 
-    var images = first.images;
+  var command = x.replace(/  *.*/, '');
 
-    var original = images.original;
+  console.log('command: ', command);
 
-    var url = original.url;
+  var parameters = x.replace(/.*? /, '');
 
-    session.send(url);
-  });
+  console.log('parameters: ', parameters);
+
+  if (command === "gif") {
+    var query = parameters;
+
+    giphy.search({
+        q: query,
+        rating: 'g'
+    }, function(err, res) {
+      try {
+        var data = res['data'];
+
+        var first = data[0];
+
+        var images = first.images;
+
+        var original = images.original;
+
+        var url = original.url;
+
+        session.send(url);
+      }
+      catch (e) {
+        session.send('Sorry, I couldn\'t find a gif for: ' + query);
+      }
+    });
+  } else {
+    session.send('Did you mean \'gif\'?');
+  }
+
 });
