@@ -25,10 +25,14 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
+  session.send("hello");
+
   giphy.search({
       q: 'pokemon',
       rating: 'g'
   }, function(err, res) {
     session.send(res);
   });
+
+  session.send("bye");
 });
