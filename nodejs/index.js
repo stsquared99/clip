@@ -1,5 +1,6 @@
-var restify = require('restify');
 var builder = require('botbuilder');
+var giphy = require('giphy-api')();
+var restify = require('restify');
 
 //=========================================================
 // Bot Setup
@@ -24,5 +25,10 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
-    session.send(session.message.user.name);
+  giphy.search({
+      q: 'pokemon',
+      rating: 'g'
+  }, function(err, res) {
+    session.send(res);
+  });
 });
