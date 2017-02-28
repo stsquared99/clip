@@ -25,9 +25,7 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
-  session.send("hello");
-
-  console.log(session.message);
+  session.send(session.message);
 
   var query = "puppies";
 
@@ -47,6 +45,4 @@ bot.dialog('/', function (session) {
 
     session.send(url);
   });
-
-  session.send("bye");
 });
