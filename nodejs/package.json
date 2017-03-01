@@ -1,7 +1,7 @@
 {
   "name": "clippy",
   "version": "1.0.0",
-  "description": "",
+  "description": "Your office assistant",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
