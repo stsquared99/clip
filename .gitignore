@@ -49,3 +49,5 @@ jspm_packages
 # dotenv environment variables file
 .env
 
+# Test file
+nodejs/dummy.js
