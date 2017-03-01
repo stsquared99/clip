@@ -7,7 +7,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Samuel Tran <sln.t.tran@gmail.com> (https://github.com/stsquared99)",
+  "repository": "stsquared99/clippy",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^3.5.4",
