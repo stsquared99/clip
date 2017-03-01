@@ -73,19 +73,19 @@ server.post('/api/messages', connector.listen());
 //=========================================================
 
 bot.dialog('/', function (session) {
-  var x = session.message.text;
+  var text = session.message.text;
 
-  var message = x.toLowerCase();
+  var message = text.toLowerCase();
 
   console.log('message: ', message);
 
-  x = message.replace(/^.*?>.*?> */, '');
+  var messageWithoutMention = message.replace(/^.*?>.*?> */, '');
 
-  var command = x.replace(/  *.*/, '');
+  var command = messageWithoutMention.replace(/ +.*/, '');
 
   console.log('command: ', command);
 
-  var parameters = x.replace(/.*? /, '');
+  var parameters = messageWithoutMention.replace(/.*? +/, '');
 
   console.log('parameters: ', parameters);
 
