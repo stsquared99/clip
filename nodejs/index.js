@@ -8,7 +8,7 @@ var restify = require('restify');
 
 helpResponse =
   "Hi! I am Clippy, your office assistant. Would you like some assistance \
-  today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
+today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
 
 invalidResponses = [
   "It looks like you're trying to build master. Do you need an intervention?",
