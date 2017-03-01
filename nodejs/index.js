@@ -6,6 +6,10 @@ var restify = require('restify');
 // Declarations
 //=========================================================
 
+helpResponse =
+  "Hi! I am Clippy, your office assistant. Would you like some assistance \
+  today?<br/>---<br/>clippy gif {search term}"
+
 invalidResponses = [
   "It looks like you're trying to build master. Do you need an intervention?",
   "It looks like you're trying to meme. Would you like me to gif?",
@@ -96,9 +100,10 @@ bot.dialog('/', function (session) {
       }
     });
   } else if (command === "help") {
-    session.send('Hi! I am Clippy, your office assistant. Would you like some assistance today?');
+    session.send(helpResponse);
   } else {
-    var response = invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
+    var response =
+      invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
 
     session.send(response);
   }
