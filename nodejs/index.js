@@ -22,10 +22,40 @@ invalidResponses = [
   "It looks like you're trying to write some python. Would you like help?"
 ];
 
-function giphyTranslate(string, callback) {
+function commandGif(options) {
+  var searchTerm = options.parameters;
+
+  if (searchTerm.length === 0) {
+    options.session.send(
+      'The \'gif\' command requires a search term' + searchTerm);
+
+    return;
+  }
+
+  giphyTranslate(searchTerm, function(err, url) {
+    if (url == null) {
+      options.session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
+    } else {
+      options.session.send(url);
+    }
+  });
+}
+
+function commandHelp(options) {
+  options.session.send(helpResponse);
+}
+
+function commandInvalid(options) {
+  var response =
+    invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
+
+  options.session.send(response);
+}
+
+function giphyTranslate(searchTerm, callback) {
   giphy.translate({
-      s: string,
-      rating: 'g'
+      rating: 'g',
+      s: searchTerm
   }, function(err, response) {
     try {
       var data = response['data'];
@@ -89,23 +119,18 @@ bot.dialog('/', function (session) {
 
   console.log('parameters: ', parameters);
 
+  var options = {
+    command: command,
+    parameters: parameters,
+    session: session
+  }
+
   if (command === "gif") {
-    var string = parameters;
-
-    giphyTranslate(string, function(err, url) {
-      if (url == null) {
-        session.send('Sorry, I couldn\'t find a gif for: ' + string);
-      } else {
-        session.send(url);
-      }
-    });
+    commandGif(options);
   } else if (command === "help") {
-    session.send(helpResponse);
+    commandHelp(options);
   } else {
-    var response =
-      invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
-
-    session.send(response);
+    commandInvalid(options);
   }
 });
 
