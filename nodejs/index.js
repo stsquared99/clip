@@ -8,7 +8,7 @@ var restify = require('restify');
 
 helpResponse =
   "Hi! I am Clippy, your office assistant. Would you like some assistance \
-  today?<br/>---<br/>clippy gif {search term}"
+  today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
 
 invalidResponses = [
   "It looks like you're trying to build master. Do you need an intervention?",
@@ -27,18 +27,12 @@ function commandGif(options) {
 
   if (searchTerm.length === 0) {
     options.session.send(
-      'The \'gif\' command requires a search term' + searchTerm);
+      '\'gif\' requires a search term' + searchTerm);
 
     return;
   }
 
-  giphyTranslate(searchTerm, function(err, url) {
-    if (url == null) {
-      options.session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
-    } else {
-      options.session.send(url);
-    }
-  });
+  postGif(searchTerm, options.session);
 }
 
 function commandHelp(options) {
@@ -50,6 +44,12 @@ function commandInvalid(options) {
     invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
 
   options.session.send(response);
+}
+
+function commandSfw(options) {
+  postGif('puppies', options.session);
+  postGif('puppies', options.session);
+  postGif('puppies', options.session);
 }
 
 function giphyTranslate(searchTerm, callback) {
@@ -75,6 +75,16 @@ function giphyTranslate(searchTerm, callback) {
       console.log('Giphy translate url: ', null);
 
       callback(e, null);
+    }
+  });
+}
+
+function postGif (searchTerm, session) {
+  giphyTranslate(searchTerm, function(err, url) {
+    if (url == null) {
+      session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
+    } else {
+      session.send(url);
     }
   });
 }
@@ -115,7 +125,7 @@ bot.dialog('/', function (session) {
 
   console.log('command: ', command);
 
-  var parameters = messageWithoutMention.replace(/.*? +/, '');
+  var parameters = messageWithoutMention.replace(/[^ ]+ */, '');
 
   console.log('parameters: ', parameters);
 
@@ -129,6 +139,8 @@ bot.dialog('/', function (session) {
     commandGif(options);
   } else if (command === "help") {
     commandHelp(options);
+  } else if (command === "sfw") {
+    commandSfw(options);
   } else {
     commandInvalid(options);
   }
