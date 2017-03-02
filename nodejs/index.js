@@ -9,6 +9,11 @@ var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 // Declarations
 //=========================================================
 
+conversationWhitelist = [
+  "19:136dcf03074f4af892554d0b04293130@thread.skype",
+  "19:617707e9e67449d3a497f58da54c5e8c@thread.skype"
+]
+
 lunchOptions = [
   "albertsons",
   "brb",
@@ -212,6 +217,9 @@ bot.dialog('/', function (session) {
 
   console.log('userId: ', userId);
 
+  var channelId = session.message.address.channelId;
+  var conversationId = session.message.address.conversation.id;
+
   var options = {
     command: command,
     parameters: parameters,
@@ -220,16 +228,21 @@ bot.dialog('/', function (session) {
     userId: userId
   };
 
-  if (command === "gif") {
+  if (command === 'gif') {
     commandGif(options);
-  } else if (command === "help") {
+  } else if (command === 'help') {
     commandHelp(options);
-  } else if (command === "lunch") {
+  } else if (command === 'lunch') {
     commandLunchHelp(options);
-  } else if (command === "sfw") {
+  } else if (command === 'sfw') {
     commandSfw(options);
-  } else if (contains(lunchOptions, command)) {
-    commandLunchCrew(options);
+  } else if (
+      channelId === 'emulator' ||
+      contains(conversationWhitelist, conversationid)) {
+
+    if (contains(lunchOptions, command)) {
+      commandLunchCrew(options);
+    }
   } else {
     commandInvalid(options);
   }
