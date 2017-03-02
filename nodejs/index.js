@@ -9,6 +9,14 @@ var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 // Declarations
 //=========================================================
 
+lunchOptions = [
+  "albertsons",
+  "brb",
+  "dominos",
+  "jjs",
+  "pho"
+];
+
 helpResponse =
   "Hi! I am Clippy, your office assistant. Would you like some assistance \
 today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
@@ -50,20 +58,35 @@ function commandInvalid(options) {
 }
 
 function commandLunch(options) {
-  var currentDate = getCurrentDate();
+  options.session.send(
+    '\'' + options.command + '\' has not yet been implemented');
 
-  data.create('albertsons', {
-    "date": currentDate,
-    "id": options.userName
-  }).then(function(albertsons) {
-    console.log(albertsons);
-  });
+  // var currentDate = getCurrentDate();
+  //
+  // data.create('albertsons', {
+  //   "date": currentDate,
+  //   "id": options.userName
+  // }).then(function(albertsons) {
+  //   console.log(albertsons);
+  // });
 }
 
 function commandSfw(options) {
   postGif('puppies', options.session);
   postGif('puppies', options.session);
   postGif('puppies', options.session);
+}
+
+function contains(array, object) {
+  var i = array.length;
+
+  while (i--) {
+    if (array[i] === object) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function getCurrentDate() {
@@ -191,7 +214,7 @@ bot.dialog('/', function (session) {
     commandHelp(options);
   } else if (command === "sfw") {
     commandSfw(options);
-  } else if (command === "albertsonstest") {
+  } else if (contains(lunchOptions, command)) {
     commandLunch(options);
   } else {
     commandInvalid(options);
