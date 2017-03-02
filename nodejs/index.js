@@ -119,7 +119,7 @@ bot.dialog('/', function (session) {
 
   console.log('message: ', message);
 
-  var messageWithoutMention = message.replace(/^.*?>.*?> */, '');
+  var messageWithoutMention = message.replace(/^.*?>.*?>[^a-z]*/, '');
 
   var command = messageWithoutMention.replace(/ +.*/, '');
 
