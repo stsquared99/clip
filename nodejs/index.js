@@ -1,6 +1,9 @@
 var builder = require('botbuilder');
 var giphy = require('giphy-api')();
 var restify = require('restify');
+var wedeploy = require('wedeploy');
+
+var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 
 //=========================================================
 // Declarations
@@ -46,10 +49,47 @@ function commandInvalid(options) {
   options.session.send(response);
 }
 
+function commandLunch(options) {
+  var currentDate = getCurrentDate();
+
+  data.create('albertsons', {
+    "date": currentDate,
+    "id": options.userName
+  }).then(function(albertsons) {
+    console.log(albertsons);
+  });
+}
+
 function commandSfw(options) {
   postGif('puppies', options.session);
   postGif('puppies', options.session);
   postGif('puppies', options.session);
+}
+
+function getCurrentDate() {
+  var currentDateTime = getCurrentDateTime();
+
+  var currentDate =
+    new Date(
+      currentDateTime.getFullYear(),
+      currentDateTime.getMonth(),
+      currentDateTime.getDate(),
+      0, 0, 0, 0);
+
+  currentDate.setUTCHours(0);
+
+  return currentDate;
+}
+
+function getCurrentDateTime() {
+  var utcDateTime = new Date();
+
+  time = utcDateTime.getTime();
+  offset = utcDateTime.getTimezoneOffset() * 60000;
+
+  var currentDateTime = new Date(time - offset);
+
+  return currentDateTime;
 }
 
 function giphyTranslate(searchTerm, callback) {
@@ -58,13 +98,13 @@ function giphyTranslate(searchTerm, callback) {
       s: searchTerm
   }, function(err, response) {
     try {
-      var data = response['data'];
+      var dataJSON = response['data'];
 
-      var images = data.images;
+      var imagesJSON = dataJSON.images;
 
-      var original = images.original;
+      var originalJSON = imagesJSON.original;
 
-      var url = original.url;
+      var url = originalJSON.url;
 
       console.log('Giphy translate url: ', url);
 
@@ -129,13 +169,25 @@ bot.dialog('/', function (session) {
 
   console.log('parameters: ', parameters);
 
+  var userName = session.message.user.name;
+
+  console.log('userName: ', userName);
+
+  var userId = session.message.user.id;
+
+  console.log('userId: ', userId);
+
   var options = {
     command: command,
     parameters: parameters,
-    session: session
-  }
+    session: session,
+    userName: userName,
+    userId: userId
+  };
 
-  if (command === "gif") {
+  if (command === "albertsons") {
+    commandLunch(options);
+  } else if (command === "gif") {
     commandGif(options);
   } else if (command === "help") {
     commandHelp(options);
