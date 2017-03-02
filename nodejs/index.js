@@ -191,8 +191,8 @@ bot.dialog('/', function (session) {
     commandHelp(options);
   } else if (command === "sfw") {
     commandSfw(options);
-  // } else if (command === "albertsons") {
-  //   commandLunch(options);
+  } else if (command === "albertsonstest") {
+    commandLunch(options);
   } else {
     commandInvalid(options);
   }
