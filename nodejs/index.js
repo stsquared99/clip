@@ -185,14 +185,14 @@ bot.dialog('/', function (session) {
     userId: userId
   };
 
-  if (command === "albertsons") {
-    commandLunch(options);
-  } else if (command === "gif") {
+  if (command === "gif") {
     commandGif(options);
   } else if (command === "help") {
     commandHelp(options);
   } else if (command === "sfw") {
     commandSfw(options);
+  // } else if (command === "albertsons") {
+  //   commandLunch(options);
   } else {
     commandInvalid(options);
   }
