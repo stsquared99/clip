@@ -12,9 +12,9 @@ var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 lunchOptions = [
   "albertsons",
   "brb",
-  "dominos",
   "jjs",
-  "pho"
+  "pho",
+  "pizza"
 ];
 
 helpResponse =
@@ -57,7 +57,19 @@ function commandInvalid(options) {
   options.session.send(response);
 }
 
-function commandLunch(options) {
+function commandLunchHelp(options) {
+  var lunchHelpResponse = "Lunch options:<br/>---";
+
+  for (var i = 0; i < lunchOptions.length; i++) {
+    lunchHelpResponse += "<br/>";
+
+    lunchHelpResponse += lunchOptions[i];
+  }
+
+  options.session.send(lunchHelpResponse);
+}
+
+function commandLunchCrew(options) {
   options.session.send(
     '\'' + options.command + '\' has not yet been implemented');
 
@@ -212,10 +224,12 @@ bot.dialog('/', function (session) {
     commandGif(options);
   } else if (command === "help") {
     commandHelp(options);
+  } else if (command === "lunch") {
+    commandLunchHelp(options);
   } else if (command === "sfw") {
     commandSfw(options);
   } else if (contains(lunchOptions, command)) {
-    commandLunch(options);
+    commandLunchCrew(options);
   } else {
     commandInvalid(options);
   }
