@@ -309,11 +309,11 @@ bot.dialog('/', function (session) {
     commandHelp(options);
   } else if (command === 'sfw') {
     commandSfw(options);
-  } else if (whitelist === true && command === 'lunch') {
+  } else if (whitelist && command === 'lunch') {
     commandLunchHelp(options);
-  } else if (whitelist === true && command === 'pod') {
+  } else if (whitelist && command === 'pod') {
     commandPod(options);
-  } else if (whitelist === true && contains(lunchOptions, command)) {
+  } else if (whitelist && contains(lunchOptions, command)) {
     commandLunchCrew(options);
   } else {
     commandInvalid(options);
