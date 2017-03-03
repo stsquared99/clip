@@ -284,12 +284,17 @@ bot.dialog('/', function (session) {
   var channelId = session.message.address.channelId;
   var conversationId = session.message.address.conversation.id;
 
+  console.log('conversationId: ', conversationId);
+
   var whitelist = false;
+
   if (channelId === 'emulator' ||
       contains(conversationWhitelist, conversationId)) {
 
       whitelist = true;
   }
+
+  console.log('whitelist: ', whitelist);
 
   var options = {
     command: command,
