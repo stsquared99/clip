@@ -120,8 +120,6 @@ function commandLunchCrew(options) {
 }
 
 function commandPod(options) {
-  var request = require('request');
-
   request.post(
       podUrl,
       { json:
