@@ -256,7 +256,7 @@ bot.dialog('/', function (session) {
 
   var whitelist = false;
   if (channelId === 'emulator' ||
-      contains(conversationWhitelist, conversationid)) {
+      contains(conversationWhitelist, conversationId)) {
 
       whitelist = true;
   }
