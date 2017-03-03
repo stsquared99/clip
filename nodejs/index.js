@@ -164,16 +164,37 @@ function lunchNo(options) {
 }
 
 function lunchYes(options) {
-  var today = getToday();
+  var lunchPath = 'lunch-' + options.command;
 
-  var path = 'lunch-' + options.command + '/' + options.firstName;
+  var userPath = lunchPath + '/' + options.firstName;
 
-  data.update(path, {
-    "date": today
-  }).then(function(lunch) {
-    console.log(lunch);
+  data.get(lunchPath).then(function(lunch) {
+    var today = getToday();
 
-    lunchList(options);
+    var i = lunch.length;
+
+    while (i--) {
+      if (lunch[i].id === options.firstName) {
+        data.update(userPath, {
+          "date": today
+        }).then(function(lunch) {
+          console.log(lunch);
+
+          lunchList(options);
+        });
+
+        return;
+      }
+    }
+
+    data.create(lunchPath, {
+      "date": today,
+      "id": options.firstName
+    }).then(function(lunch) {
+      console.log(lunch);
+
+      lunchList(options);
+    });
   });
 }
 
