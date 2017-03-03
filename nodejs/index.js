@@ -136,9 +136,9 @@ function contains(array, object) {
 }
 
 function getCurrentMoment() {
-  var formattedMoment = momentjs().tz("America/Los_Angeles").format();
+  var momentFormat = momentjs().tz("America/Los_Angeles").format();
 
-  return momentjs(formattedMoment.replace(/-[^-]*$/, ''));
+  return momentjs(momentFormat.replace(/-[^-]*$/, ''));
 }
 
 function getNextHappyHour() {
