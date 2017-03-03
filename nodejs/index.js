@@ -27,6 +27,10 @@ helpResponse =
   "Hi! I am Clippy, your office assistant. Would you like some assistance \
 today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
 
+whitelistHelpResponse =
+  "<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy \
+{lunch option}<br/>clippy {lunch option} {yes|no}"
+
 invalidResponses = [
   "It looks like you're trying to build master. Do you need an intervention?",
   "It looks like you're trying to meme. Would you like me to gif?",
@@ -53,7 +57,13 @@ function commandGif(options) {
 }
 
 function commandHelp(options) {
-  options.session.send(helpResponse);
+  var response = helpResponse;
+
+  if (options.whitelist === true) {
+    response += whitelistHelpResponse;
+  }
+
+  options.session.send(response);
 }
 
 function commandInvalid(options) {
@@ -230,12 +240,20 @@ bot.dialog('/', function (session) {
   var channelId = session.message.address.channelId;
   var conversationId = session.message.address.conversation.id;
 
+  var whitelist = false;
+  if (channelId === 'emulator' ||
+      contains(conversationWhitelist, conversationid)) {
+
+      whitelist = true;
+  }
+
   var options = {
     command: command,
     parameters: parameters,
     session: session,
     userName: userName,
-    userId: userId
+    userId: userId,
+    whitelist: whitelist
   };
 
   if (command === 'beer') {
@@ -248,13 +266,8 @@ bot.dialog('/', function (session) {
     commandLunchHelp(options);
   } else if (command === 'sfw') {
     commandSfw(options);
-  } else if (
-      channelId === 'emulator' ||
-      contains(conversationWhitelist, conversationid)) {
-
-    if (contains(lunchOptions, command)) {
-      commandLunchCrew(options);
-    }
+  } else if (whitelist === true && contains(lunchOptions, command)) {
+    commandLunchCrew(options);
   } else {
     commandInvalid(options);
   }
