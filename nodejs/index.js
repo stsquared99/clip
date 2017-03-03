@@ -1,7 +1,7 @@
 var builder = require('botbuilder');
 var giphy = require('giphy-api')();
+var momentjs = require('moment');
 var restify = require('restify');
-var timezone = require('timezone-js');
 var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
@@ -42,6 +42,9 @@ invalidResponses = [
   "It looks like you're trying to write some javascript. Would you like help?",
   "It looks like you're trying to write some python. Would you like help?"
 ];
+
+function commandBeer(options) {
+}
 
 function commandGif(options) {
   var searchTerm = options.parameters;
@@ -117,39 +120,27 @@ function contains(array, object) {
   return false;
 }
 
-function getCurrentDate() {
-  var currentDateTime = getCurrentDateTime();
-
-  var currentDate =
-    new Date(
-      currentDateTime.getFullYear(),
-      currentDateTime.getMonth(),
-      currentDateTime.getDate(),
-      0, 0, 0, 0);
-
-  currentDate.setUTCHours(0);
-
-  return currentDate;
-}
-
-function getCurrentDateTime() {
-  var utcDateTime = new Date();
-
-  var currentDateTime =
-    new timezone.Date(
-      utcDateTime.getFullYear(),
-      utcDateTime.getMonth(),
-      utcDateTime.getDate(),
-      utcDateTime.getHours(),
-      utcDateTime.getMinutes(),
-      utcDateTime.getSeconds(),
-      'America/Los_Angeles');
-
-  return currentDateTime;
+function getToday() {
+  return moment().format('YYYY-MM-DD');
 }
 
 function getNextHappyHour() {
+  var moment = momentjs();
 
+  if (moment.day() === 5 && moment.hour() >= 15) {
+    moment.add(1, 'days');
+  }
+
+  moment.hour(15);
+  moment.minutes(0);
+  moment.seconds(0);
+  moment.milliseconds(0);
+
+  while (!isHappyHour(moment)) {
+    moment.add(1, 'days');
+  }
+
+  return moment;
 }
 
 function giphyTranslate(searchTerm, callback) {
@@ -177,6 +168,14 @@ function giphyTranslate(searchTerm, callback) {
       callback(e, null);
     }
   });
+}
+
+function isHappyHour(moment) {
+  if (moment.day() === 5 && moment.hour() === 15) {
+    return true;
+  }
+
+  return false;
 }
 
 function postGif (searchTerm, session) {

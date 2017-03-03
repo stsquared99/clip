@@ -13,8 +13,8 @@
   "dependencies": {
     "botbuilder": "^3.5.4",
     "giphy-api": "^1.2.3",
+    "moment": "^2.17.1",
     "restify": "^4.3.0",
-    "timezone-js": "^0.4.13",
     "wedeploy": "^1.4.0"
   }
 }
