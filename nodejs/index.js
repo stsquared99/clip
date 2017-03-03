@@ -1,6 +1,6 @@
 var builder = require('botbuilder');
 var giphy = require('giphy-api')();
-var momentjs = require('moment');
+var momentjs = require('moment-timezone');
 var restify = require('restify');
 var wedeploy = require('wedeploy');
 
@@ -44,13 +44,13 @@ invalidResponses = [
 ];
 
 function commandBeer(options) {
-  if (isHappyHour(momentjs())) {
+  if (isHappyHour(getCurrentMoment())) {
     options.session.send('(beer) The taps are open! (beer)');
 
     return;
   }
 
-  var diff = momentjs.duration(getNextHappyHour().diff(momentjs()));
+  var diff = momentjs.duration(getNextHappyHour().diff(getCurrentMoment()));
 
   var days = diff.days();
   var hours = diff.hours() % 24;
@@ -135,12 +135,12 @@ function contains(array, object) {
   return false;
 }
 
-function getToday() {
-  return moment().format('YYYY-MM-DD');
+function getCurrentMoment() {
+  return momentjs(momentjs().tz("America/Los_Angeles").format());
 }
 
 function getNextHappyHour() {
-  var moment = momentjs();
+  var moment = getCurrentMoment();
 
   if (moment.day() === 5 && moment.hour() >= 15) {
     moment.add(1, 'days');
@@ -156,6 +156,10 @@ function getNextHappyHour() {
   }
 
   return moment;
+}
+
+function getToday() {
+  return moment().format('YYYY-MM-DD');
 }
 
 function giphyTranslate(searchTerm, callback) {
