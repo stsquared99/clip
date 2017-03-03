@@ -117,6 +117,10 @@ function commandLunchCrew(options) {
   // });
 }
 
+function commandPod(options) {
+  options.session.send('<at>@pod</at> help');
+}
+
 function commandSfw(options) {
   postGif('puppies', options.session);
   postGif('puppies', options.session);
@@ -282,6 +286,8 @@ bot.dialog('/', function (session) {
     commandGif(options);
   } else if (command === 'help') {
     commandHelp(options);
+  } else if (command === 'pod') {
+    commandPod(options);
   } else if (command === 'sfw') {
     commandSfw(options);
   } else if ((whitelist === true && command === 'lunch') {
