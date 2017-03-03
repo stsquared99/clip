@@ -290,7 +290,7 @@ bot.dialog('/', function (session) {
     commandPod(options);
   } else if (command === 'sfw') {
     commandSfw(options);
-  } else if ((whitelist === true && command === 'lunch') {
+  } else if (whitelist === true && command === 'lunch') {
     commandLunchHelp(options);
   } else if (whitelist === true && contains(lunchOptions, command)) {
     commandLunchCrew(options);
