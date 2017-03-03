@@ -18,7 +18,6 @@ conversationWhitelist = [
 ]
 
 lunchOptions = [
-  "albertsons",
   "brb",
   "jjs",
   "pho",
@@ -94,29 +93,88 @@ function commandInvalid(options) {
 }
 
 function commandLunchHelp(options) {
-  var lunchHelpResponse = "Lunch options:<br/>---";
+  var response = "Lunch options:<br/>---";
 
   for (var i = 0; i < lunchOptions.length; i++) {
-    lunchHelpResponse += "<br/>";
+    response += "<br/>";
 
-    lunchHelpResponse += lunchOptions[i];
+    response += lunchOptions[i];
   }
 
-  options.session.send(lunchHelpResponse);
+  options.session.send(response);
 }
 
 function commandLunchCrew(options) {
-  options.session.send(
-    '\'' + options.command + '\' has not yet been implemented');
+  if (options.parameters === "no") {
+    lunchNo(options);
+  } else if (options.parameters === "yes") {
+    lunchYes(options);
+  } else {
+    lunchList(options);
+  }
+}
 
-  // var currentDate = getCurrentDate();
-  //
-  // data.create('albertsons', {
-  //   "date": currentDate,
-  //   "id": options.userName
-  // }).then(function(albertsons) {
-  //   console.log(albertsons);
-  // });
+function lunchList(options) {
+  var path = 'lunch-' + options.command;
+  var today = getToday();
+
+  data.get(path).then(function(lunch) {
+    var response = null;
+
+    if (options.command === 'brb') {
+      response = 'BRB crew today:';
+    } else if (options.command === 'jjs') {
+      response = 'JJs crew today:';
+    } else {
+      var first = options.command.charAt(0).toUpperCase();
+
+      response = options.command.replace(/^[a-z]/, first) + ' crew today:';
+    }
+
+    for (var i = 0; i < lunch.length; i++) {
+      if (lunch[i].date === today) {
+        response += "<br/>";
+
+        response += lunch[i].id;
+      }
+    }
+
+    options.session.send(response);
+  });
+}
+
+function lunchNo(options) {
+  var lunchPath = 'lunch-' + options.command;
+
+  var userPath = lunchPath + '/' + options.firstName;
+
+  data.get(lunchPath).then(function(lunch) {
+    var i = lunch.length;
+
+    while (i--) {
+      if (lunch[i].id === options.firstName) {
+        data.delete(userPath);
+
+        break;
+      }
+    }
+
+    lunchList(options);
+  });
+}
+
+function lunchYes(options) {
+  var today = getToday();
+
+  var path = 'lunch-' + options.command + '/' + options.firstName;
+
+  data.update(path, {
+    "date": today
+  }).then(function(lunch) {
+    console.log(lunch);
+
+    lunchList(options);
+  });
 }
 
 function commandPod(options) {
@@ -183,7 +241,7 @@ function getNextHappyHour() {
 }
 
 function getToday() {
-  return moment().format('YYYY-MM-DD');
+  return momentjs().format('YYYY-MM-DD');
 }
 
 function giphyTranslate(searchTerm, callback) {
@@ -267,17 +325,22 @@ bot.dialog('/', function (session) {
 
   console.log('command: ', command);
 
-  var parameters = messageWithoutMention.replace(/[^ ]+ */, '');
+  var parameters =
+    messageWithoutMention.replace(/[^ ]+ */, '').replace(/ *$/, '');
 
   console.log('parameters: ', parameters);
+
+  var userId = session.message.user.id;
+
+  console.log('userId: ', userId);
 
   var userName = session.message.user.name;
 
   console.log('userName: ', userName);
 
-  var userId = session.message.user.id;
+  var firstName = userName.replace(/ .*/, '');
 
-  console.log('userId: ', userId);
+  console.log('firstName: ', firstName);
 
   var channelId = session.message.address.channelId;
   var conversationId = session.message.address.conversation.id;
@@ -297,6 +360,7 @@ bot.dialog('/', function (session) {
   var options = {
     command: command,
     conversationId: conversationId,
+    firstName: firstName,
     parameters: parameters,
     session: session,
     userName: userName,
