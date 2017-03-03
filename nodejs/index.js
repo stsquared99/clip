@@ -314,8 +314,6 @@ bot.dialog('/', function (session) {
     commandSfw(options);
   } else if (whitelist && command === 'lunch') {
     commandLunchHelp(options);
-  } else if (whitelist && command === 'pod') {
-    commandPod(options);
   } else if (whitelist && contains(lunchOptions, command)) {
     commandLunchCrew(options);
   } else {
