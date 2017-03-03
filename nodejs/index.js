@@ -118,7 +118,7 @@ function commandLunchCrew(options) {
 }
 
 function commandPod(options) {
-  options.session.send('<at>@pod</at> help');
+  options.session.send('@pod help');
 }
 
 function commandSfw(options) {
