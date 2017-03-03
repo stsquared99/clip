@@ -24,12 +24,12 @@ lunchOptions = [
 ];
 
 helpResponse =
-  "Hi! I am Clippy, your office assistant. Would you like some assistance \
-today?<br/>---<br/>clippy gif {search term}<br/>clippy sfw"
+  "Hi! I am Clippy, your office assistant. Would you like some assistance " +
+    "today?<br/>---<br/>clippy beer<br/>clippy gif {search term}<br/>clippy sfw"
 
 whitelistHelpResponse =
-  "<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy \
-{lunch option}<br/>clippy {lunch option} {yes|no}"
+  "<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy " +
+    "{lunch option}<br/>clippy {lunch option} {yes|no}"
 
 invalidResponses = [
   "It looks like you're trying to build master. Do you need an intervention?",
@@ -44,6 +44,21 @@ invalidResponses = [
 ];
 
 function commandBeer(options) {
+  if (isHappyHour(momentjs())) {
+    options.session.send('(beer) The taps are open! (beer)');
+
+    return;
+  }
+
+  var diff = momentjs.duration(getNextHappyHour().diff(momentjs()));
+
+  var days = diff.days();
+  var hours = diff.hours() % 24;
+  var minutes = diff.minutes() % 60;
+
+  options.session.send(
+    '(beer) ' + days + ' days, ' + hours + ' hours, and ' + minutes  +
+    ' minutes (beer)');
 }
 
 function commandGif(options) {
