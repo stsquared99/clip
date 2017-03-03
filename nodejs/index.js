@@ -13,8 +13,8 @@ var podUrl = process.env.POD_URL;
 //=========================================================
 
 conversationWhitelist = [
-  "19:136dcf03074f4af892554d0b04293130@thread.skype",
-  "19:617707e9e67449d3a497f58da54c5e8c@thread.skype"
+  "19:617707e9e67449d3a497f58da54c5e8c@thread.skype",
+  "19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype"
 ]
 
 lunchOptions = [
