@@ -1,10 +1,12 @@
 var builder = require('botbuilder');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
+var request = require('request');
 var restify = require('restify');
 var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
+var podUrl = process.env.POD_URL;
 
 //=========================================================
 // Declarations
@@ -118,7 +120,25 @@ function commandLunchCrew(options) {
 }
 
 function commandPod(options) {
-  options.session.send('@pod help');
+  var request = require('request');
+
+  request.post(
+      podUrl,
+      { json:
+        {
+          "text": "<at>pod</at> " + options.parameters,
+          "from": { "name": options.userName, "id": options.userId },
+          "conversation": { "id": options.conversationId }
+        }
+      },
+      function (error, response, body) {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log(response.statusCode, body);
+          }
+      }
+  );
 }
 
 function commandSfw(options) {
@@ -273,6 +293,7 @@ bot.dialog('/', function (session) {
 
   var options = {
     command: command,
+    conversationId: conversationId,
     parameters: parameters,
     session: session,
     userName: userName,
@@ -286,12 +307,12 @@ bot.dialog('/', function (session) {
     commandGif(options);
   } else if (command === 'help') {
     commandHelp(options);
-  } else if (command === 'pod') {
-    commandPod(options);
   } else if (command === 'sfw') {
     commandSfw(options);
   } else if (whitelist === true && command === 'lunch') {
     commandLunchHelp(options);
+  } else if (whitelist === true && command === 'pod') {
+    commandPod(options);
   } else if (whitelist === true && contains(lunchOptions, command)) {
     commandLunchCrew(options);
   } else {
