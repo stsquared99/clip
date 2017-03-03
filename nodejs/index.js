@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 var giphy = require('giphy-api')();
 var restify = require('restify');
+var timezone = require('timezone-js');
 var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
@@ -124,12 +125,21 @@ function getCurrentDate() {
 function getCurrentDateTime() {
   var utcDateTime = new Date();
 
-  time = utcDateTime.getTime();
-  offset = utcDateTime.getTimezoneOffset() * 60000;
-
-  var currentDateTime = new Date(time - offset);
+  var currentDateTime =
+    new timezone.Date(
+      utcDateTime.getFullYear(),
+      utcDateTime.getMonth(),
+      utcDateTime.getDate(),
+      utcDateTime.getHours(),
+      utcDateTime.getMinutes(),
+      utcDateTime.getSeconds(),
+      'America/Los_Angeles');
 
   return currentDateTime;
+}
+
+function getNextHappyHour() {
+
 }
 
 function giphyTranslate(searchTerm, callback) {
@@ -228,7 +238,9 @@ bot.dialog('/', function (session) {
     userId: userId
   };
 
-  if (command === 'gif') {
+  if (command === 'beer') {
+    commandBeer(options);
+  } else if (command === 'gif') {
     commandGif(options);
   } else if (command === 'help') {
     commandHelp(options);
