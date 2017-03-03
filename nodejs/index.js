@@ -140,6 +140,10 @@ function lunchList(options) {
     }
 
     options.session.send(response);
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
   });
 }
 
@@ -153,13 +157,22 @@ function lunchNo(options) {
 
     while (i--) {
       if (lunch[i].id === options.firstName) {
-        data.delete(userPath);
+        data.delete(userPath).catch(function(error) {
+          console.error(error);
+
+          options.session.send(
+            'Oops, something went wrong. Please try again later.')
+        })
 
         break;
       }
     }
 
     lunchList(options);
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
   });
 }
 
@@ -181,6 +194,11 @@ function lunchYes(options) {
           console.log(lunch);
 
           lunchList(options);
+        }).catch(function(error) {
+          console.error(error);
+
+          options.session.send(
+            'Oops, something went wrong. Please try again later.')
         });
 
         return;
@@ -195,6 +213,10 @@ function lunchYes(options) {
 
       lunchList(options);
     });
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
   });
 }
 
@@ -269,7 +291,7 @@ function giphyTranslate(searchTerm, callback) {
   giphy.translate({
       rating: 'g',
       s: searchTerm
-  }, function(err, response) {
+  }, function(error, response) {
     try {
       var dataJSON = response['data'];
 
@@ -301,8 +323,10 @@ function isHappyHour(moment) {
 }
 
 function postGif (searchTerm, session) {
-  giphyTranslate(searchTerm, function(err, url) {
+  giphyTranslate(searchTerm, function(error, url) {
     if (url == null) {
+      console.log(error);
+
       session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
     } else {
       session.send(url);
