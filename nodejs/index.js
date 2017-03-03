@@ -282,10 +282,10 @@ bot.dialog('/', function (session) {
     commandGif(options);
   } else if (command === 'help') {
     commandHelp(options);
-  } else if (command === 'lunch') {
-    commandLunchHelp(options);
   } else if (command === 'sfw') {
     commandSfw(options);
+  } else if ((whitelist === true && command === 'lunch') {
+    commandLunchHelp(options);
   } else if (whitelist === true && contains(lunchOptions, command)) {
     commandLunchCrew(options);
   } else {
