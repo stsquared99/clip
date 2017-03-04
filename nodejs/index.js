@@ -12,38 +12,6 @@ var podUrl = process.env.POD_URL;
 // Declarations
 //=========================================================
 
-conversationWhitelist = [
-  "19:617707e9e67449d3a497f58da54c5e8c@thread.skype",
-  "19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype"
-]
-
-lunchOptions = [
-  "brb",
-  "jjs",
-  "pho",
-  "pizza"
-];
-
-helpResponse =
-  "Hi! I am Clippy, your office assistant. Would you like some assistance " +
-    "today?<br/>---<br/>clippy beer<br/>clippy gif {search term}<br/>clippy sfw"
-
-whitelistHelpResponse =
-  "<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy " +
-    "{lunch option}<br/>clippy {lunch option} {yes|no}"
-
-invalidResponses = [
-  "It looks like you're trying to build master. Do you need an intervention?",
-  "It looks like you're trying to meme. Would you like me to gif?",
-  "It looks like you're trying to work. Would you like me to bug you?",
-  "It looks like you're trying to write a letter. Would you like help?",
-  "It looks like you're trying to write an autobiography. Would you like help?",
-  "It looks like you're trying to write some bash. Would you like help?",
-  "It looks like you're trying to write some java. Would you like help?",
-  "It looks like you're trying to write some javascript. Would you like help?",
-  "It looks like you're trying to write some python. Would you like help?"
-];
-
 function commandBeer(options) {
   if (isHappyHour(getCurrentMoment())) {
     options.session.send('(beer) The taps are open! (beer)');
@@ -76,23 +44,45 @@ function commandGif(options) {
 }
 
 function commandHelp(options) {
-  var response = helpResponse;
+  var helpResponse =
+    "Hi! I am Clippy, your office assistant. Would you like some " +
+      "assistance today?<br/>---<br/>clippy beer<br/>clippy gif " +
+        "{search term}<br/>clippy sfw"
+
+  var whitelistResponse =
+    "<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy " +
+      "{lunch option}<br/>clippy {lunch option} {yes|no}"
 
   if (options.whitelist === true) {
-    response += whitelistHelpResponse;
+    options.session.send(helpResponse + whitelistResponse);
+
+    return;
   }
 
-  options.session.send(response);
+  options.session.send(helpResponse);
 }
 
 function commandInvalid(options) {
-  var response =
-    invalidResponses[Math.floor(Math.random() * invalidResponses.length)];
+  var invalidResponses = [
+    "It looks like you're trying to build master. Do you need an intervention?",
+    "It looks like you're trying to meme. Would you like me to gif?",
+    "It looks like you're trying to work. Would you like me to bug you?",
+    "It looks like you're trying to write a letter. Would you like help?",
+    "It looks like you're trying to write an autobiography. Would you like " +
+      "help?",
+    "It looks like you're trying to write some bash. Would you like help?",
+    "It looks like you're trying to write some java. Would you like help?",
+    "It looks like you're trying to write some javascript. Would you like " +
+      "help?",
+    "It looks like you're trying to write some python. Would you like help?"
+  ];
 
-  options.session.send(response);
+  options.session.send(
+    invalidResponses[Math.floor(Math.random() * invalidResponses.length)]);
 }
 
 function commandLunchHelp(options) {
+  var lunchOptions = getLunchOptions();
   var response = "Lunch options:<br/>---";
 
   for (var i = 0; i < lunchOptions.length; i++) {
@@ -112,112 +102,6 @@ function commandLunchCrew(options) {
   } else {
     lunchList(options);
   }
-}
-
-function lunchList(options) {
-  var path = 'lunch-' + options.command;
-  var today = getToday();
-
-  data.get(path).then(function(lunch) {
-    var response = null;
-
-    if (options.command === 'brb') {
-      response = 'BRB crew today:';
-    } else if (options.command === 'jjs') {
-      response = 'JJs crew today:';
-    } else {
-      var first = options.command.charAt(0).toUpperCase();
-
-      response = options.command.replace(/^[a-z]/, first) + ' crew today:';
-    }
-
-    for (var i = 0; i < lunch.length; i++) {
-      if (lunch[i].date === today) {
-        response += "<br/>";
-
-        response += lunch[i].id;
-      }
-    }
-
-    options.session.send(response);
-  }).catch(function(error) {
-    console.error(error);
-
-    options.session.send('Oops, something went wrong. Please try again later.')
-  });
-}
-
-function lunchNo(options) {
-  var lunchPath = 'lunch-' + options.command;
-
-  var userPath = lunchPath + '/' + options.firstName;
-
-  data.get(lunchPath).then(function(lunch) {
-    var i = lunch.length;
-
-    while (i--) {
-      if (lunch[i].id === options.firstName) {
-        data.delete(userPath).catch(function(error) {
-          console.error(error);
-
-          options.session.send(
-            'Oops, something went wrong. Please try again later.')
-        })
-
-        break;
-      }
-    }
-
-    lunchList(options);
-  }).catch(function(error) {
-    console.error(error);
-
-    options.session.send('Oops, something went wrong. Please try again later.')
-  });
-}
-
-function lunchYes(options) {
-  var lunchPath = 'lunch-' + options.command;
-
-  var userPath = lunchPath + '/' + options.firstName;
-
-  data.get(lunchPath).then(function(lunch) {
-    var today = getToday();
-
-    var i = lunch.length;
-
-    while (i--) {
-      if (lunch[i].id === options.firstName) {
-        data.update(userPath, {
-          "date": today
-        }).then(function(lunch) {
-          console.log(lunch);
-
-          lunchList(options);
-        }).catch(function(error) {
-          console.error(error);
-
-          options.session.send(
-            'Oops, something went wrong. Please try again later.')
-        });
-
-        return;
-      }
-    }
-
-    data.create(lunchPath, {
-      "date": today,
-      "id": options.firstName
-    }).then(function(lunch) {
-      console.log(lunch);
-
-      lunchList(options);
-    });
-  }).catch(function(error) {
-    console.error(error);
-
-    options.session.send('Oops, something went wrong. Please try again later.')
-  });
 }
 
 function commandPod(options) {
@@ -262,6 +146,15 @@ function getCurrentMoment() {
   var momentFormat = momentjs().tz("America/Los_Angeles").format();
 
   return momentjs(momentFormat.replace(/-[^-]*$/, ''));
+}
+
+function getLunchOptions() {
+  return [
+    "brb",
+    "jjs",
+    "pho",
+    "pizza"
+  ];
 }
 
 function getNextHappyHour() {
@@ -320,6 +213,115 @@ function isHappyHour(moment) {
   }
 
   return false;
+}
+
+
+function lunchList(options) {
+  var path = 'lunch-' + options.command;
+  var today = getToday();
+
+  data.get(path).then(function(lunch) {
+    var response = null;
+
+    if (options.command === 'brb') {
+      response = 'BRB crew today:';
+    } else if (options.command === 'jjs') {
+      response = 'JJs crew today:';
+    } else {
+      var first = options.command.charAt(0).toUpperCase();
+
+      response = options.command.replace(/^[a-z]/, first) + ' crew today:';
+    }
+
+    for (var i = 0; i < lunch.length; i++) {
+      if (lunch[i].date === today) {
+        response += "<br/>";
+
+        response += lunch[i].id;
+      }
+    }
+
+    options.session.send(response);
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
+  });
+}
+
+function lunchNo(options) {
+  var lunchPath = 'lunch-' + options.command;
+
+  var userPath = lunchPath + '/' + options.firstName;
+
+  data.get(lunchPath).then(function(lunch) {
+    var i = lunch.length;
+
+    while (i--) {
+      if (lunch[i].id === options.firstName) {
+        data.delete(userPath).then(function(lunch) {
+          console.log(lunch);
+
+          lunchList(options);
+        }).catch(function(error) {
+          console.error(error);
+
+          options.session.send(
+            'Oops, something went wrong. Please try again later.')
+        });
+
+        break;
+      }
+    }
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
+  });
+}
+
+function lunchYes(options) {
+  var lunchPath = 'lunch-' + options.command;
+
+  var userPath = lunchPath + '/' + options.firstName;
+
+  data.get(lunchPath).then(function(lunch) {
+    var today = getToday();
+
+    var i = lunch.length;
+
+    while (i--) {
+      if (lunch[i].id === options.firstName) {
+        data.update(userPath, {
+          "date": today
+        }).then(function(lunch) {
+          console.log(lunch);
+
+          lunchList(options);
+        }).catch(function(error) {
+          console.error(error);
+
+          options.session.send(
+            'Oops, something went wrong. Please try again later.')
+        });
+
+        return;
+      }
+    }
+
+    data.create(lunchPath, {
+      "date": today,
+      "id": options.firstName
+    }).then(function(lunch) {
+      console.log(lunch);
+
+      lunchList(options);
+    });
+  }).catch(function(error) {
+    console.error(error);
+
+    options.session.send('Oops, something went wrong. Please try again later.')
+  });
 }
 
 function postGif (searchTerm, session) {
@@ -392,6 +394,11 @@ bot.dialog('/', function (session) {
 
   console.log('conversationId: ', conversationId);
 
+  var conversationWhitelist = [
+    "19:617707e9e67449d3a497f58da54c5e8c@thread.skype",
+    "19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype"
+  ]
+
   var whitelist = false;
 
   if (channelId === 'emulator' ||
@@ -402,6 +409,7 @@ bot.dialog('/', function (session) {
 
   console.log('whitelist: ', whitelist);
 
+  var lunchOptions = getLunchOptions();
   var options = {
     command: command,
     conversationId: conversationId,
