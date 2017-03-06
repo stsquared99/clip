@@ -6,7 +6,6 @@ var restify = require('restify');
 var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
-var podUrl = process.env.POD_URL;
 
 //=========================================================
 // Declarations
@@ -102,26 +101,6 @@ function commandLunchCrew(options) {
   } else {
     lunchList(options);
   }
-}
-
-function commandPod(options) {
-  request.post(
-      podUrl,
-      { json:
-        {
-          "text": "<at>pod</at> " + options.parameters,
-          "from": { "name": options.userName, "id": options.userId },
-          "conversation": { "id": options.conversationId }
-        }
-      },
-      function (error, response, body) {
-          if (error) {
-            console.error(error);
-          } else {
-            console.log(response.statusCode, body);
-          }
-      }
-  );
 }
 
 function commandSfw(options) {
