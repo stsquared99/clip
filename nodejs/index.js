@@ -389,6 +389,7 @@ bot.dialog('/', function (session) {
   console.log('whitelist: ', whitelist);
 
   var lunchOptions = getLunchOptions();
+
   var options = {
     command: command,
     conversationId: conversationId,
