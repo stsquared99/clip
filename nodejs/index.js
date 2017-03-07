@@ -409,7 +409,10 @@ bot.dialog('/', function (session) {
     commandHelp(options);
   } else if (command === 'sfw') {
     commandSfw(options);
-  } else if (command === 'genuine' && parameters === 'thrilla') {
+  } else if (
+      (command === 'genuine' && parameters === 'thrilla') ||
+      command === 'james') {
+
     session.send('https://twitter.com/griffinmcelroy/status/677966778417283072');
   } else if (whitelist && command === 'lunch') {
     commandLunchHelp(options);
