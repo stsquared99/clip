@@ -4,7 +4,7 @@
   "description": "Your office assistant",
   "main": "index.js",
   "scripts": {
-    "format": "standard --fix index.js",
+    "format": "eslint index.js --fix",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,10 +13,14 @@
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^3.5.4",
+    "eslint": "^3.17.1",
     "giphy-api": "^1.2.3",
     "moment-timezone": "^0.5.11",
     "restify": "^4.3.0",
-    "standard": "^9.0.1",
     "wedeploy": "^1.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-google": "^0.7.1"
   }
 }
