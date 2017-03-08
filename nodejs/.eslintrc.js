@@ -1,3 +1,7 @@
 module.exports = {
-    "extends": "google"
+    "extends": "google",
+    "rules": {
+      "no-var": "off",
+      "require-jsdoc": "off"
+    }
 };
