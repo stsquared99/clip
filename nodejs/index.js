@@ -178,6 +178,12 @@ function giphyTranslate (searchTerm, callback) {
     rating: 'g',
     s: searchTerm
   }, function (error, response) {
+    if (error) {
+      console.error(error)
+
+      callback(error, null)
+    }
+
     try {
       var dataJSON = response['data']
 
@@ -190,11 +196,11 @@ function giphyTranslate (searchTerm, callback) {
       console.log('Giphy translate url: ', url)
 
       callback(null, url)
-    } catch (e) {
-      console.error(e)
+    } catch (exception) {
+      console.error(exception)
       console.log('Giphy translate url: ', null)
 
-      callback(e, null)
+      callback(exception, null)
     }
   })
 }
