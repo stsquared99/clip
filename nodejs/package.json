@@ -4,6 +4,7 @@
   "description": "Your office assistant",
   "main": "index.js",
   "scripts": {
+    "format": "standard --fix index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,6 +16,7 @@
     "giphy-api": "^1.2.3",
     "moment-timezone": "^0.5.11",
     "restify": "^4.3.0",
+    "standard": "^9.0.1",
     "wedeploy": "^1.4.0"
   }
 }
