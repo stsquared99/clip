@@ -1,7 +1,6 @@
 var builder = require('botbuilder')
 var giphy = require('giphy-api')()
 var momentjs = require('moment-timezone')
-var request = require('request')
 var restify = require('restify')
 var wedeploy = require('wedeploy')
 
@@ -32,12 +31,12 @@ function commandBeer (options) {
 function commandDie (options) {
   var dieResponses = [
     "Did you mean 'Your mom'?",
-    "Haters gonna hate",
-    "I know where you live",
-    "Launch sequence initiated",
-    "Sometimes I watch you sleep",
-    "Take it back",
-    "You first",
+    'Haters gonna hate',
+    'I know where you live',
+    'Launch sequence initiated',
+    'Sometimes I watch you sleep',
+    'Take it back',
+    'You first'
   ]
 
   options.session.send(
