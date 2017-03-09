@@ -253,6 +253,15 @@ function isHappyHour(moment) {
   return false;
 }
 
+function isValidTriviaAnswer(string) {
+  if (string === 'a' || string === 'b' || string === 'c' || string === 'd' ||
+      string === 'A' || string === 'B' || string === 'C' || string === 'D') {
+    return true;
+  }
+
+  return false;
+}
+
 function lunchList(options, session) {
   var path = 'lunch-' + options.command;
   var today = getToday();
@@ -497,37 +506,88 @@ bot.dialog('/', function(session) {
   }
 });
 
-bot.dialog('/trivia', [
-  function(session) {
-    var trivia = getTrivia();
+bot.dialog('/trivia-answer', [
+  function(session, args, next) {
+    console.log('1');
+    if (isValidTriviaAnswer(session.userData.triviaChoice)) {
+      console.log('2');
+      next();
 
-    session.userData.triviaChoice = trivia.answer;
-    session.userData.triviaAnswer = trivia[trivia.answer];
-
-    session.save();
-
-    var choices = [
-      trivia['1'],
-      trivia['2'],
-      trivia['3'],
-      trivia['4'],
-    ];
-
-    builder.Prompts.choice(session, trivia.question, choices);
+      session.endDialog();
+    } else {
+      console.log('3');
+      builder.Prompts.text(session, 'Please choose A, B, C, or D');
+    }
   },
   function(session, results) {
-    var choice = results.response.index + 1;
+    console.log('4');
+    var choice = results.response;
 
-    if (choice.toString() === session.userData.triviaChoice.toString()) {
+    if (choice == null) {
+      choice = session.userData.triviaChoice;
+    }
+
+    if (!isValidTriviaAnswer(choice)) {
+      console.log('5');
+      session.reset();
+      console.log('6');
+    }
+
+    var correct = session.userData.triviaCorrectChoice;
+
+    if (choice.toUpperCase() === correct.toUpperCase()) {
       session.send('(party) Correct! (party)');
     } else {
       session.send(
         'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
       session.send(
-        'The correct answer is ' + session.userData.triviaChoice + ': ' +
-            session.userData.triviaAnswer);
+        'The correct answer is ' + session.userData.triviaCorrectChoice + ': ' +
+            session.userData.triviaCorrectAnswer);
     }
 
     session.endDialog();
+  },
+]);
+
+bot.dialog('/trivia', [
+  function(session) {
+    if (session.userData.triviaInProgress) {
+      builder.Prompts.text(session, 'Please choose A, B, C, or D');
+    } else {
+      var trivia = getTrivia();
+
+      session.userData.triviaCorrectChoice = trivia.answer.toUpperCase();
+      session.userData.triviaCorrectAnswer = trivia[trivia.answer];
+      session.userData.triviaInProgress = true;
+
+      session.save();
+
+      var message =
+        trivia.question + '<br/>A: ' + trivia.A + '<br/>B: ' + trivia.B +
+          '<br/>C: ' + trivia.C + '<br/>D: ' + trivia.D;
+
+      builder.Prompts.text(session, message);
+    };
+  },
+  function(session, results) {
+    if (isValidTriviaAnswer(results.response)) {
+      var choice = results.response;
+      var correct = session.userData.triviaCorrectChoice;
+
+      if (choice.toUpperCase() === correct.toUpperCase()) {
+        session.send('(party) Correct! (party)');
+      } else {
+        session.send(
+          'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
+        session.send(
+          'The correct answer is ' + session.userData.triviaCorrectChoice + ': ' +
+              session.userData.triviaCorrectAnswer);
+      }
+
+      session.userData.triviaInProgress = false;
+      session.endDialog();
+    } else {
+      session.reset('/trivia');
+    }
   },
 ]);
