@@ -136,6 +136,28 @@ function contains(array, object) {
   return false;
 }
 
+function filterGif(url) {
+  var filter = {
+    'Q7JjlnGKGuPpS': '4P1RLExaH5HQQ',
+    '6SQMmvQWoh2Eg': 'ajSHSow1ET2OQ',
+    'jY0bXU5XAyqeA': 'So3Dotqhz3gQM',
+    'TlK63EJLjCEdYz3a6g8': 'yAP1X619l0LMQ',
+    'pbcG7Xj1OE7Zu': 'TlK63EIqyXzpb38JZte',
+  };
+
+  var id = filter[url.replace(/\/giphy.gif/, '').replace(/.*\//, '')];
+
+  if (id == null) {
+    return url;
+  }
+
+  var newUrl = 'https://media.giphy.com/media/' + id + '/giphy.gif';
+
+  console.log('Filter replaced ', url, ' with ', newUrl);
+
+  return newUrl;
+}
+
 function getCurrentMoment() {
   var momentFormat = momentjs().tz('America/Los_Angeles').format();
 
@@ -329,7 +351,7 @@ function postGif(searchTerm, session) {
 
       session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
     } else {
-      session.send(url);
+      session.send(filterGif(url));
     }
   });
 }
