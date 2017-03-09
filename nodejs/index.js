@@ -10,9 +10,9 @@ var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 // Declarations
 // =========================================================
 
-function commandBeer(options) {
+function commandBeer(options, session) {
   if (isHappyHour(getCurrentMoment())) {
-    options.session.send('(beer) The taps are open! (beer)');
+    session.send('(beer) The taps are open! (beer)');
 
     return;
   }
@@ -23,12 +23,12 @@ function commandBeer(options) {
   var hours = diff.hours() % 24;
   var minutes = diff.minutes() % 60;
 
-  options.session.send(
+  session.send(
     '(beer) ' + days + ' days, ' + hours + ' hours, and ' + minutes +
       ' minutes (beer)');
 }
 
-function commandDie(options) {
+function commandDie(options, session) {
   var dieResponses = [
     'Did you mean \'Your mom\'?',
     'Haters gonna hate',
@@ -39,24 +39,24 @@ function commandDie(options) {
     'You first',
   ];
 
-  options.session.send(
+  session.send(
     dieResponses[Math.floor(Math.random() * dieResponses.length)]);
 }
 
-function commandGif(options) {
+function commandGif(options, session) {
   var searchTerm = options.parameters;
 
   if (searchTerm.length === 0) {
-    options.session.send(
+    session.send(
       '\'gif\' requires a search term' + searchTerm);
 
     return;
   }
 
-  postGif(searchTerm, options.session);
+  postGif(searchTerm, session);
 }
 
-function commandHelp(options) {
+function commandHelp(options, session) {
   var helpResponse =
     'Hi! I am Clippy, your office assistant. Would you like some ' +
       'assistance today?<br/>---<br/>clippy beer<br/>clippy gif ' +
@@ -67,15 +67,15 @@ function commandHelp(options) {
       '{lunch option}<br/>clippy {lunch option} {yes|no}';
 
   if (options.whitelist === true) {
-    options.session.send(helpResponse + whitelistResponse);
+    session.send(helpResponse + whitelistResponse);
 
     return;
   }
 
-  options.session.send(helpResponse);
+  session.send(helpResponse);
 }
 
-function commandInvalid(options) {
+function commandInvalid(options, session) {
   var invalidResponses = [
     'It looks like you\'re trying to build master. Do you need an ' +
       'intervention?',
@@ -91,11 +91,11 @@ function commandInvalid(options) {
     'It looks like you\'re trying to write some python. Would you like help?',
   ];
 
-  options.session.send(
+  session.send(
     invalidResponses[Math.floor(Math.random() * invalidResponses.length)]);
 }
 
-function commandLunchHelp(options) {
+function commandLunchHelp(options, session) {
   var lunchOptions = getLunchOptions();
   var response = 'Lunch options:<br/>---';
 
@@ -105,23 +105,23 @@ function commandLunchHelp(options) {
     response += lunchOptions[i];
   }
 
-  options.session.send(response);
+  session.send(response);
 }
 
-function commandLunchCrew(options) {
+function commandLunchCrew(options, session) {
   if (options.parameters === 'no') {
-    lunchNo(options);
+    lunchNo(options, session);
   } else if (options.parameters === 'yes') {
-    lunchYes(options);
+    lunchYes(options, session);
   } else {
-    lunchList(options);
+    lunchList(options, session);
   }
 }
 
-function commandSfw(options) {
-  postGif('puppies', options.session);
-  postGif('puppies', options.session);
-  postGif('puppies', options.session);
+function commandSfw(options, session) {
+  postGif('puppies', session);
+  postGif('puppies', session);
+  postGif('puppies', session);
 }
 
 function contains(array, object) {
@@ -236,7 +236,7 @@ function isHappyHour(moment) {
   return false;
 }
 
-function lunchList(options) {
+function lunchList(options, session) {
   var path = 'lunch-' + options.command;
   var today = getToday();
 
@@ -261,15 +261,15 @@ function lunchList(options) {
       }
     }
 
-    options.session.send(response);
+    session.send(response);
   }).catch(function(error) {
     console.error(error);
 
-    options.session.send('Oops, something went wrong. Please try again later.');
+    session.send('Oops, something went wrong. Please try again later.');
   });
 }
 
-function lunchNo(options) {
+function lunchNo(options, session) {
   var lunchPath = 'lunch-' + options.command;
 
   var userPath = lunchPath + '/' + options.firstName;
@@ -282,11 +282,11 @@ function lunchNo(options) {
         data.delete(userPath).then(function(lunch) {
           console.log(lunch);
 
-          lunchList(options);
+          lunchList(options, session);
         }).catch(function(error) {
           console.error(error);
 
-          options.session.send(
+          session.send(
             'Oops, something went wrong. Please try again later.');
         });
 
@@ -296,11 +296,11 @@ function lunchNo(options) {
   }).catch(function(error) {
     console.error(error);
 
-    options.session.send('Oops, something went wrong. Please try again later.');
+    session.send('Oops, something went wrong. Please try again later.');
   });
 }
 
-function lunchYes(options) {
+function lunchYes(options, session) {
   var lunchPath = 'lunch-' + options.command;
 
   var userPath = lunchPath + '/' + options.firstName;
@@ -317,11 +317,11 @@ function lunchYes(options) {
         }).then(function(lunch) {
           console.log(lunch);
 
-          lunchList(options);
+          lunchList(options, session);
         }).catch(function(error) {
           console.error(error);
 
-          options.session.send(
+          session.send(
             'Oops, something went wrong. Please try again later.');
         });
 
@@ -335,12 +335,12 @@ function lunchYes(options) {
     }).then(function(lunch) {
       console.log(lunch);
 
-      lunchList(options);
+      lunchList(options, session);
     });
   }).catch(function(error) {
     console.error(error);
 
-    options.session.send('Oops, something went wrong. Please try again later.');
+    session.send('Oops, something went wrong. Please try again later.');
   });
 }
 
@@ -450,24 +450,24 @@ bot.dialog('/', function(session) {
   var lunchOptions = getLunchOptions();
 
   if (command === 'beer') {
-    commandBeer(options);
+    commandBeer(options, session);
   } else if (command === 'die' || command === 'diaf' || message === 'go away' ||
               message === 'kill yourself' || message === 'shut up') {
-    commandDie(options);
+    commandDie(options, session);
   } else if (command === 'genuine' || command === 'james') {
     session.send(
       'https://twitter.com/griffinmcelroy/status/677966778417283072');
   } else if (command === 'gif') {
-    commandGif(options);
+    commandGif(options, session);
   } else if (command === 'help') {
-    commandHelp(options);
+    commandHelp(options, session);
   } else if (command === 'sfw') {
-    commandSfw(options);
+    commandSfw(options, session);
   } else if (whitelist && command === 'lunch') {
-    commandLunchHelp(options);
+    commandLunchHelp(options, session);
   } else if (whitelist && contains(lunchOptions, command)) {
-    commandLunchCrew(options);
+    commandLunchCrew(options, session);
   } else {
-    commandInvalid(options);
+    commandInvalid(options, session);
   }
 });
