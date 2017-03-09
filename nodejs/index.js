@@ -344,42 +344,7 @@ function lunchYes(options) {
   });
 }
 
-function postGif(searchTerm, session) {
-  giphyTranslate(searchTerm, function(error, url) {
-    if (url == null) {
-      console.log(error);
-
-      session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
-    } else {
-      session.send(filterGif(url));
-    }
-  });
-}
-
-// =========================================================
-// Bot Setup
-// =========================================================
-
-var server = restify.createServer();
-
-server.listen(process.env.port || process.env.PORT || 80, function() {
-  console.log('%s listening to %s', server.name, server.url);
-});
-
-var connector = new builder.ChatConnector({
-  appId: process.env.MICROSOFT_APP_ID,
-  appPassword: process.env.MICROSOFT_APP_PASSWORD,
-});
-
-var bot = new builder.UniversalBot(connector);
-
-server.post('/api/messages', connector.listen());
-
-// =========================================================
-// Bots Dialogs
-// =========================================================
-
-bot.dialog('/', function(session) {
+function parseOptions(session) {
   var text = session.message.text;
 
   var message = text.toLowerCase().replace(/ *$/, '');
@@ -428,9 +393,7 @@ bot.dialog('/', function(session) {
 
   console.log('whitelist: ', whitelist);
 
-  var lunchOptions = getLunchOptions();
-
-  var options = {
+  return {
     command: command,
     conversationId: conversationId,
     firstName: firstName,
@@ -440,6 +403,51 @@ bot.dialog('/', function(session) {
     userId: userId,
     whitelist: whitelist,
   };
+}
+
+function postGif(searchTerm, session) {
+  giphyTranslate(searchTerm, function(error, url) {
+    if (url == null) {
+      console.log(error);
+
+      session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
+    } else {
+      session.send(filterGif(url));
+    }
+  });
+}
+
+// =========================================================
+// Bot Setup
+// =========================================================
+
+var server = restify.createServer();
+
+server.listen(process.env.port || process.env.PORT || 80, function() {
+  console.log('%s listening to %s', server.name, server.url);
+});
+
+var connector = new builder.ChatConnector({
+  appId: process.env.MICROSOFT_APP_ID,
+  appPassword: process.env.MICROSOFT_APP_PASSWORD,
+});
+
+var bot = new builder.UniversalBot(connector);
+
+server.post('/api/messages', connector.listen());
+
+// =========================================================
+// Bots Dialogs
+// =========================================================
+
+bot.dialog('/', function(session) {
+  var options = parseOptions(session);
+
+  var command = options.command;
+  var message = options.message;
+  var whitelist = options.whitelist;
+
+  var lunchOptions = getLunchOptions();
 
   if (command === 'beer') {
     commandBeer(options);
