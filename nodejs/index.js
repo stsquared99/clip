@@ -521,12 +521,11 @@ bot.dialog('/trivia', [
     if (choice.toString() === session.userData.triviaChoice.toString()) {
       session.send('(party) Correct! (party)');
     } else {
-      var response =
-        'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif<br/><br/>' +
-          'The correct answer is ' + session.userData.triviaChoice + ': ' +
-            session.userData.triviaAnswer;
-
-      session.send(response);
+      session.send(
+        'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
+      session.send(
+        'The correct answer is ' + session.userData.triviaChoice + ': ' +
+            session.userData.triviaAnswer);
     }
 
     session.endDialog();
