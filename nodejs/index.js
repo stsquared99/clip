@@ -455,6 +455,8 @@ bot.dialog('/', function(session) {
   } else if (command === 'die' || command === 'diaf' || message === 'go away' ||
               message === 'kill yourself' || message === 'shut up') {
     commandDie(options, session);
+  } else if (command === 'duel') {
+    session.send('Did you mean \'pod duel\'?');
   } else if (command === 'genuine' || command === 'james') {
     session.send(
       'https://twitter.com/griffinmcelroy/status/677966778417283072');
@@ -462,6 +464,10 @@ bot.dialog('/', function(session) {
     commandGif(options, session);
   } else if (command === 'help') {
     commandHelp(options, session);
+  } else if (command === 'lotto') {
+    session.send('Did you mean \'pod lotto\'?');
+  } else if (command === 'points') {
+    session.send('Did you mean \'pod points\'?');
   } else if (command === 'sfw') {
     commandSfw(options, session);
   } else if (whitelist && command === 'lunch') {
