@@ -6,6 +6,8 @@ var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 
+var triviaArray = require('./trivia.json');
+
 // =========================================================
 // Declarations
 // =========================================================
@@ -125,6 +127,16 @@ function commandSfw(options, session) {
   postGif('puppies', session);
 }
 
+function commandTrivia(options, session) {
+  if (options.parameters === 'play') {
+    session.beginDialog('/trivia');
+
+    return;
+  }
+
+  session.send('stats');
+}
+
 function contains(array, object) {
   var i = array.length;
 
@@ -191,6 +203,10 @@ function getNextHappyHour() {
   }
 
   return moment;
+}
+
+function getTrivia() {
+  return triviaArray[Math.floor(Math.random() * triviaArray.length)];
 }
 
 function getToday() {
@@ -470,6 +486,8 @@ bot.dialog('/', function(session) {
     session.send('Did you mean \'pod points\'?');
   } else if (command === 'sfw') {
     commandSfw(options, session);
+  } else if (command === 'trivia') {
+    commandTrivia(options, session);
   } else if (whitelist && command === 'lunch') {
     commandLunchHelp(options, session);
   } else if (whitelist && contains(lunchOptions, command)) {
@@ -478,3 +496,39 @@ bot.dialog('/', function(session) {
     commandInvalid(options, session);
   }
 });
+
+bot.dialog('/trivia', [
+  function(session) {
+    var trivia = getTrivia();
+
+    session.userData.triviaChoice = trivia.answer;
+    session.userData.triviaAnswer = trivia[trivia.answer];
+
+    session.save();
+
+    var choices = [
+      trivia['1'],
+      trivia['2'],
+      trivia['3'],
+      trivia['4'],
+    ];
+
+    builder.Prompts.choice(session, trivia.question, choices);
+  },
+  function(session, results) {
+    var choice = results.response.index + 1;
+
+    if (choice.toString() === session.userData.triviaChoice.toString()) {
+      session.send('(party) Correct! (party)');
+    } else {
+      var response =
+        'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif<br/><br/>' +
+          'The correct answer is ' + session.userData.triviaChoice + ': ' +
+            session.userData.triviaAnswer;
+
+      session.send(response);
+    }
+
+    session.endDialog();
+  },
+]);
