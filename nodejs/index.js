@@ -33,6 +33,7 @@ function commandDie(options, session) {
     'Did you mean \'Your mom\'?',
     'Haters gonna hate',
     'I know where you live',
+    'I\'m the captain now',
     'Launch sequence initiated',
     'Sometimes I watch you sleep',
     'Take it back',
