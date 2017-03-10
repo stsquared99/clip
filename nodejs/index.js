@@ -570,8 +570,11 @@ bot.dialog('/trivia', [
     };
   },
   function(session, results) {
-    if (isValidTriviaAnswer(results.response)) {
-      var choice = results.response;
+    var response =
+      results.response.replace(/[^a-zA-Z]*$/, '').replace(/.*[^a-zA-Z]/, '');
+
+    if (isValidTriviaAnswer(response)) {
+      var choice = response;
       var correct = session.userData.triviaCorrectChoice;
 
       if (choice.toUpperCase() === correct.toUpperCase()) {
