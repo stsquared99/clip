@@ -121,6 +121,16 @@ function commandLunchCrew(options, session) {
   }
 }
 
+function commandPlay(options, session) {
+  if (options.parameters === 'trivia') {
+    session.beginDialog('/trivia');
+
+    return;
+  }
+
+  session.send('Did you mean \'play trivia\'?');
+}
+
 function commandSfw(options, session) {
   postGif('puppies', session);
   postGif('puppies', session);
@@ -128,13 +138,7 @@ function commandSfw(options, session) {
 }
 
 function commandTrivia(options, session) {
-  if (options.parameters === 'play') {
-    session.beginDialog('/trivia');
-
-    return;
-  }
-
-  session.send('stats');
+  session.send('Under construction');
 }
 
 function contains(array, object) {
@@ -493,6 +497,8 @@ bot.dialog('/', function(session) {
     session.send('Did you mean \'pod lotto\'?');
   } else if (command === 'points') {
     session.send('Did you mean \'pod points\'?');
+  } else if (command === 'play') {
+    commandPlay(options, session);
   } else if (command === 'sfw') {
     commandSfw(options, session);
   } else if (command === 'trivia') {
@@ -583,8 +589,8 @@ bot.dialog('/trivia', [
         session.send(
           'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
         session.send(
-          'The correct answer is ' + session.userData.triviaCorrectChoice + ': ' +
-              session.userData.triviaCorrectAnswer);
+          'The correct answer is ' + session.userData.triviaCorrectChoice +
+            ': ' + session.userData.triviaCorrectAnswer);
       }
 
       session.userData.triviaInProgress = false;
