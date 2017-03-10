@@ -124,8 +124,35 @@ function commandLunchCrew(options, session) {
 
 function commandPlay(options, session) {
   if (options.parameters === 'trivia') {
-    session.beginDialog('/trivia');
+    data.get('trivia').then(function(trivia) {
+      var exists = false;
+      var i = trivia.length;
 
+      while (i--) {
+        if (trivia[i].id === options.firstName) {
+          exists = true;
+
+          break;
+        }
+      }
+
+      if (!exists) {
+        data.create('trivia', {
+          'correct': 0,
+          'date': '',
+          'id': options.firstName,
+          'total': 0,
+        }).then(function(trivia) {
+          console.log(trivia);
+        });
+      }
+
+      session.beginDialog('/trivia');
+    }).catch(function(error) {
+      console.error(error);
+
+      session.send('Oops, something went wrong. Please try again later.');
+    });
     return;
   }
 
