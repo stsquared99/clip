@@ -407,7 +407,10 @@ function parseOptions(session) {
 
   console.log('userName: ', userName);
 
-  var firstName = userName.replace(/ .*/, '');
+  var firstName =
+    userName.replace(
+        /^[a-z]/, userName.charAt(0).toUpperCase()
+      ).replace(/ .*/, '');
 
   console.log('firstName: ', firstName);
 
@@ -536,9 +539,11 @@ bot.dialog('/trivia', [
 
       session.save();
 
+      var options = parseOptions(session);
+
       var message =
-        trivia.question + '<br/>A: ' + trivia.A + '<br/>B: ' + trivia.B +
-          '<br/>C: ' + trivia.C + '<br/>D: ' + trivia.D;
+        options.firstName + ', ' + trivia.question + '<br/>A: ' + trivia.A +
+          '<br/>B: ' + trivia.B + '<br/>C: ' + trivia.C + '<br/>D: ' + trivia.D;
 
       builder.Prompts.text(session, message);
     };
