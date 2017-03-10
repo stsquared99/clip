@@ -523,49 +523,6 @@ bot.dialog('/', function(session) {
   }
 });
 
-bot.dialog('/trivia-answer', [
-  function(session, args, next) {
-    console.log('1');
-    if (isValidTriviaAnswer(session.userData.triviaChoice)) {
-      console.log('2');
-      next();
-
-      session.endDialog();
-    } else {
-      console.log('3');
-      builder.Prompts.text(session, 'Please choose A, B, C, or D');
-    }
-  },
-  function(session, results) {
-    console.log('4');
-    var choice = results.response;
-
-    if (choice == null) {
-      choice = session.userData.triviaChoice;
-    }
-
-    if (!isValidTriviaAnswer(choice)) {
-      console.log('5');
-      session.reset();
-      console.log('6');
-    }
-
-    var correct = session.userData.triviaCorrectChoice;
-
-    if (choice.toUpperCase() === correct.toUpperCase()) {
-      session.send('(party) Correct! (party)');
-    } else {
-      session.send(
-        'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
-      session.send(
-        'The correct answer is ' + session.userData.triviaCorrectChoice + ': ' +
-            session.userData.triviaCorrectAnswer);
-    }
-
-    session.endDialog();
-  },
-]);
-
 bot.dialog('/trivia', [
   function(session) {
     if (session.userData.triviaInProgress) {
@@ -573,8 +530,8 @@ bot.dialog('/trivia', [
     } else {
       var trivia = getTrivia();
 
-      session.userData.triviaCorrectChoice = trivia.answer.toUpperCase();
-      session.userData.triviaCorrectAnswer = trivia[trivia.answer];
+      session.userData.triviaChoice = trivia.answer.toUpperCase();
+      session.userData.triviaAnswer = trivia[trivia.answer];
       session.userData.triviaInProgress = true;
 
       session.save();
@@ -592,15 +549,15 @@ bot.dialog('/trivia', [
 
     if (isValidTriviaAnswer(response)) {
       var choice = response;
-      var correct = session.userData.triviaCorrectChoice;
+      var correct = session.userData.triviaChoice;
 
       if (choice.toUpperCase() === correct.toUpperCase()) {
         session.send('(party) Correct! (party)');
       } else {
         postGif('wrong', session, function() {
           session.send(
-            'The correct answer is ' + session.userData.triviaCorrectChoice +
-              ': ' + session.userData.triviaCorrectAnswer);
+            'The correct answer is ' + session.userData.triviaChoice +
+              ': ' + session.userData.triviaAnswer);
         });
       }
 
