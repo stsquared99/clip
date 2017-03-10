@@ -66,8 +66,9 @@ function commandHelp(options, session) {
         '{search term}<br/>clippy sfw';
 
   var whitelistResponse =
-    '<br/>---<br/>clippy lunch<br/>: List lunch options<br/>clippy ' +
-      '{lunch option}<br/>clippy {lunch option} {yes|no}';
+    '<br/>---<br/>clippy lunch<br/>: List lunch options<br/>' +
+      'clippy {lunch option}<br/>clippy {lunch option} {yes|no}<br/>' +
+        'clippy play trivia<br/>clippy trivia<br/>: Show trivia stats';
 
   if (options.whitelist === true) {
     session.send(helpResponse + whitelistResponse);
@@ -138,6 +139,12 @@ function commandSfw(options, session) {
 }
 
 function commandTrivia(options, session) {
+  if (options.parameters === 'play') {
+    session.send('Did you mean \'play trivia\'?');
+
+    return;
+  }
+
   session.send('Under construction');
 }
 
