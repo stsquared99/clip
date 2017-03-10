@@ -435,7 +435,7 @@ function parseOptions(session) {
   };
 }
 
-function postGif(searchTerm, session) {
+function postGif(searchTerm, session, callback) {
   giphyTranslate(searchTerm, function(error, url) {
     if (url == null) {
       console.log(error);
@@ -443,6 +443,10 @@ function postGif(searchTerm, session) {
       session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
     } else {
       session.send(filterGif(url));
+    }
+
+    if (callback) {
+      callback();
     }
   });
 }
@@ -586,14 +590,15 @@ bot.dialog('/trivia', [
       if (choice.toUpperCase() === correct.toUpperCase()) {
         session.send('(party) Correct! (party)');
       } else {
-        session.send(
-          'https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif');
-        session.send(
-          'The correct answer is ' + session.userData.triviaCorrectChoice +
-            ': ' + session.userData.triviaCorrectAnswer);
+        postGif('wrong', session, function() {
+          session.send(
+            'The correct answer is ' + session.userData.triviaCorrectChoice +
+              ': ' + session.userData.triviaCorrectAnswer);
+        });
       }
 
       session.userData.triviaInProgress = false;
+
       session.endDialog();
     } else {
       session.reset('/trivia');
