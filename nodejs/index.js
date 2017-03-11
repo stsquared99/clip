@@ -147,12 +147,17 @@ function commandPlay(options, session) {
         });
       }
 
+      session.userData.triviaInProgress = false;
+
+      session.save();
+
       session.beginDialog('/trivia');
     }).catch(function(error) {
       console.error(error);
 
-      session.send('Oops, something went wrong. Please try again later.');
+      postError(session);
     });
+
     return;
   }
 
@@ -329,7 +334,7 @@ function lunchList(options, session) {
   }).catch(function(error) {
     console.error(error);
 
-    session.send('Oops, something went wrong. Please try again later.');
+    postError(session);
   });
 }
 
@@ -360,7 +365,7 @@ function lunchNo(options, session) {
   }).catch(function(error) {
     console.error(error);
 
-    session.send('Oops, something went wrong. Please try again later.');
+    postError(session);
   });
 }
 
@@ -404,7 +409,7 @@ function lunchYes(options, session) {
   }).catch(function(error) {
     console.error(error);
 
-    session.send('Oops, something went wrong. Please try again later.');
+    postError(session);
   });
 }
 
@@ -470,6 +475,10 @@ function parseOptions(session) {
     userId: userId,
     whitelist: whitelist,
   };
+}
+
+function postError(session) {
+  session.send('Oops, something went wrong. Please try again later.');
 }
 
 function postGif(searchTerm, session, callback) {
@@ -576,8 +585,22 @@ bot.dialog('/trivia', [
     };
   },
   function(session, results) {
-    var response =
-      results.response.replace(/[^a-zA-Z]*$/, '').replace(/.*[^a-zA-Z]/, '');
+    try {
+      var response =
+        results.response.replace(/[^a-zA-Z]*$/, '').replace(/.*[^a-zA-Z]/, '');
+    } catch (error) {
+      console.error(error);
+
+      postError(session);
+
+      session.userData.triviaInProgress = false;
+
+      session.save();
+
+      session.cancelDialog();
+
+      return;
+    }
 
     if (isValidTriviaAnswer(response)) {
       var choice = response;
@@ -595,7 +618,11 @@ bot.dialog('/trivia', [
 
       session.userData.triviaInProgress = false;
 
+      session.save();
+
       session.endDialog();
+
+      return;
     } else {
       session.reset('/trivia');
     }
