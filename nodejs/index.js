@@ -190,7 +190,28 @@ function commandTrivia(options, session) {
     return;
   }
 
-  session.send('Under construction');
+  var response = 'Trivia stats:<br/>---';
+
+  data
+  .limit(100)
+  .orderBy('correct')
+  .get('trivia')
+  .then(function(results) {
+    for (var i = 0; i < results.length; i++) {
+      var entry =
+        '<br/>' + results[i].id + ': ' + results[i].correct + '/' +
+          results[i].total + ' correct answers';
+
+      response += entry;
+    }
+
+    session.send(response);
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session, 'Oops, I had trouble getting the stats. Please try again later');
+  });
 }
 
 function contains(array, object) {
