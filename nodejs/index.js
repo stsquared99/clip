@@ -254,8 +254,8 @@ function getTrivia() {
 }
 
 function getToday() {
-  console.log(momentjs());
-  return momentjs().format('YYYY-MM-DD');
+  console.log(momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD'));
+  return momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
 }
 
 function giphyTranslate(searchTerm, callback) {
