@@ -148,7 +148,7 @@ function commandPlay(options, session) {
         });
       }
 
-      session.userData.triviaInProgress = false;
+      session.userData['triviaInProgress'] = false;
 
       session.save();
 
@@ -573,14 +573,14 @@ bot.dialog('/', function(session) {
 
 bot.dialog('/trivia', [
   function(session) {
-    if (session.userData.triviaInProgress) {
+    if (session.userData['triviaInProgress']) {
       builder.Prompts.text(session, 'Please choose A, B, C, or D');
     } else {
       var trivia = getTrivia();
 
-      session.userData.triviaChoice = trivia.answer.toUpperCase();
-      session.userData.triviaAnswer = trivia[trivia.answer];
-      session.userData.triviaInProgress = true;
+      session.userData['triviaChoice'] = trivia.answer.toUpperCase();
+      session.userData['triviaAnswer'] = trivia[trivia.answer];
+      session.userData['triviaInProgress'] = true;
 
       session.save();
 
@@ -602,7 +602,7 @@ bot.dialog('/trivia', [
 
       postError(session);
 
-      session.userData.triviaInProgress = false;
+      session.userData['triviaInProgress'] = false;
 
       session.save();
 
@@ -613,19 +613,19 @@ bot.dialog('/trivia', [
 
     if (isValidTriviaAnswer(response)) {
       var choice = response;
-      var correct = session.userData.triviaChoice;
+      var correct = session.userData['triviaChoice'];
 
       if (choice.toUpperCase() === correct.toUpperCase()) {
         session.send('(party) Correct! (party)');
       } else {
         postGif('wrong', session, function() {
           session.send(
-            'The correct answer is ' + session.userData.triviaChoice +
-              ': ' + session.userData.triviaAnswer);
+            'The correct answer is ' + session.userData['triviaChoice'] +
+              ': ' + session.userData['triviaAnswer']);
         });
       }
 
-      session.userData.triviaInProgress = false;
+      session.userData['triviaInProgress'] = false;
 
       session.save();
 
