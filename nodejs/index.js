@@ -94,17 +94,16 @@ function commandHelp(options, session) {
 function commandInvalid(options, session) {
   var invalidResponses = [
     'Help I\'m trapped in a paperclip factory',
-    'It looks like you suck at spelling. Would you like help?',
+    'It looks like you suck at spelling. Do you need help?',
     'It looks like you\'re trying to build master. ' +
       'Do you need an intervention?',
-    'It looks like you\'re trying to call a dolphin. Would you like help?',
+    'It looks like you\'re trying to call a dolphin. Do you need help?',
     'It looks like you\'re trying to work. Would you like me to bug you?',
-    'It looks like you\'re trying to write a letter. Would you like help?',
-    'It looks like you\'re trying to write some bash. Would you like help?',
-    'It looks like you\'re trying to write some java. Would you like help?',
-    'It looks like you\'re trying to write some javascript. ' +
-      'Would you like help?',
-    'It looks like you\'re trying to write some python. Would you like help?',
+    'It looks like you\'re trying to write a letter. Do you need help?',
+    'It looks like you\'re trying to write some bash. Do you need help?',
+    'It looks like you\'re trying to write some java. Do you need help?',
+    'It looks like you\'re trying to write some javascript. Do you need help?',
+    'It looks like you\'re trying to write some python. Do you need help?',
   ];
 
   session.send(
