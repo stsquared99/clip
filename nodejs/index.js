@@ -127,6 +127,7 @@ function commandPlay(options, session) {
     data.get('trivia').then(function(trivia) {
       var exists = false;
       var i = trivia.length;
+      var today = getToday();
 
       while (i--) {
         if (trivia[i].id === options.firstName) {
@@ -253,6 +254,7 @@ function getTrivia() {
 }
 
 function getToday() {
+  console.log(momentjs());
   return momentjs().format('YYYY-MM-DD');
 }
 
