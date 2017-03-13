@@ -12,6 +12,18 @@ var triviaArray = require('./trivia.json');
 // Declarations
 // =========================================================
 
+function abortDialog(session, error, message) {
+  console.error(error);
+
+  postError(session, message);
+
+  session.userData['triviaInProgress'] = false;
+
+  session.save();
+
+  session.cancelDialog();
+}
+
 function commandBeer(options, session) {
   if (isHappyHour(getCurrentMoment())) {
     session.send('(beer) The taps are open! (beer)');
@@ -131,6 +143,12 @@ function commandPlay(options, session) {
 
       while (i--) {
         if (trivia[i].id === options.firstName) {
+          if (trivia[i].date === today) {
+            session.send('You have already played trivia today');
+
+            return;
+          }
+
           exists = true;
 
           break;
@@ -486,7 +504,13 @@ function parseOptions(session) {
   };
 }
 
-function postError(session) {
+function postError(session, message) {
+  if (message) {
+    session.send(message);
+
+    return;
+  }
+
   session.send('Oops, something went wrong. Please try again later.');
 }
 
@@ -594,44 +618,78 @@ bot.dialog('/trivia', [
     };
   },
   function(session, results) {
+    var options = parseOptions(session);
+
     try {
       var response =
         results.response.replace(/[^a-zA-Z]*$/, '').replace(/.*[^a-zA-Z]/, '');
     } catch (error) {
-      console.error(error);
-
-      postError(session);
-
-      session.userData['triviaInProgress'] = false;
-
-      session.save();
-
-      session.cancelDialog();
+      abortDialog(session, error);
 
       return;
     }
 
     if (isValidTriviaAnswer(response)) {
       var choice = response;
-      var correct = session.userData['triviaChoice'];
+      var correctChoice = session.userData['triviaChoice'];
 
-      if (choice.toUpperCase() === correct.toUpperCase()) {
-        session.send('(party) Correct! (party)');
-      } else {
-        postGif('wrong', session, function() {
-          session.send(
-            'The correct answer is ' + session.userData['triviaChoice'] +
-              ': ' + session.userData['triviaAnswer']);
-        });
+      var correct = false;
+
+      if (choice.toUpperCase() === correctChoice.toUpperCase()) {
+        correct =true;
       }
 
-      session.userData['triviaInProgress'] = false;
+      data.get('trivia/' + options.firstName).then(function(stats) {
+        var statsCorrect = stats.correct;
+        var statsTotal = stats.total + 1;
 
-      session.save();
+        if (correct) {
+          statsCorrect++;
+        }
 
-      session.endDialog();
+        var today = getToday();
 
-      return;
+        data.update('trivia/' + options.firstName, {
+          'correct' : statsCorrect,
+          'date': today,
+          'total': statsTotal,
+        }).then(function(update) {
+          console.log(update);
+
+          if (correct) {
+            session.send('(party) Correct! (party)');
+          } else {
+            postGif('wrong', session, function() {
+              session.send(
+                'The correct answer is ' + session.userData['triviaChoice'] +
+                  ': ' + session.userData['triviaAnswer']);
+            });
+          }
+
+          session.userData['triviaInProgress'] = false;
+
+          session.save();
+
+          session.endDialog();
+
+          return;
+        }).catch(function(error) {
+          console.error(error);
+
+          abortDialog(
+            session,
+            error,
+            'Oops, I had trouble updating your stats. ' +
+              'Please play again later.');
+        });
+      }).catch(function(error) {
+        abortDialog(
+          session,
+          error,
+          'Oops, I had trouble getting your stats. Please play again later.');
+
+        return;
+      });
     } else {
       session.reset('/trivia');
     }
