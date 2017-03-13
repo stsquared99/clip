@@ -136,26 +136,13 @@ function commandLunchCrew(options, session) {
 
 function commandPlay(options, session) {
   if (options.parameters === 'trivia') {
-    data.get('trivia').then(function(trivia) {
-      var exists = false;
-      var i = trivia.length;
+    data
+    .where('id', '=', options.firstName)
+    .get('trivia')
+    .then(function(results) {
       var today = getToday();
 
-      while (i--) {
-        if (trivia[i].id === options.firstName) {
-          if (trivia[i].date === today) {
-            session.send('You have already played trivia today');
-
-            return;
-          }
-
-          exists = true;
-
-          break;
-        }
-      }
-
-      if (!exists) {
+      if (!results[0]) {
         data.create('trivia', {
           'correct': 0,
           'date': '',
@@ -164,6 +151,10 @@ function commandPlay(options, session) {
         }).then(function(trivia) {
           console.log(trivia);
         });
+      } else if (results[0].date === today) {
+        session.send('You have already played trivia today');
+
+        return;
       }
 
       session.userData['triviaInProgress'] = false;
@@ -174,7 +165,10 @@ function commandPlay(options, session) {
     }).catch(function(error) {
       console.error(error);
 
-      postError(session);
+      postError(
+        session,
+        'Oops, I had trouble checking on your trivia status. ' +
+          'Please try again later');
     });
 
     return;
@@ -336,32 +330,36 @@ function lunchList(options, session) {
   var path = 'lunch-' + options.command;
   var today = getToday();
 
-  data.get(path).then(function(lunch) {
-    var response = null;
+  var response = null;
 
-    if (options.command === 'brb') {
-      response = 'BRB crew today:';
-    } else if (options.command === 'jjs') {
-      response = 'JJs crew today:';
-    } else {
-      var first = options.command.charAt(0).toUpperCase();
+  if (options.command === 'brb') {
+    response = 'BRB crew today:';
+  } else if (options.command === 'jjs') {
+    response = 'JJs crew today:';
+  } else {
+    var first = options.command.charAt(0).toUpperCase();
 
-      response = options.command.replace(/^[a-z]/, first) + ' crew today:';
-    }
+    response = options.command.replace(/^[a-z]/, first) + ' crew today:';
+  }
 
-    for (var i = 0; i < lunch.length; i++) {
-      if (lunch[i].date === today) {
-        response += '<br/>';
+  data
+  .limit(100)
+  .orderBy('id')
+  .where('date', '=', today)
+  .get(path)
+  .then(function(results) {
+    for (var i = 0; i < results.length; i++) {
+      response += '<br/>';
 
-        response += lunch[i].id;
-      }
+      response += results[i].id;
     }
 
     session.send(response);
   }).catch(function(error) {
     console.error(error);
 
-    postError(session);
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
   });
 }
 
@@ -370,30 +368,34 @@ function lunchNo(options, session) {
 
   var userPath = lunchPath + '/' + options.firstName;
 
-  data.get(lunchPath).then(function(lunch) {
-    var i = lunch.length;
+  data
+  .where('id', '=', options.firstName)
+  .get(lunchPath)
+  .then(function(results) {
+    if (results[0]) {
+      data.delete(userPath).then(function(response) {
+        console.log(response);
 
-    while (i--) {
-      if (lunch[i].id === options.firstName) {
-        data.delete(userPath).then(function(lunch) {
-          console.log(lunch);
+        lunchList(options, session);
 
-          lunchList(options, session);
-        }).catch(function(error) {
-          console.error(error);
+        return;
+      }).catch(function(error) {
+        console.error(error);
 
-          session.send(
-            'Oops, something went wrong. Please try again later.');
-        });
-
-        break;
-      }
+        postError(
+          session,
+          'Oops, I had trouble removing you from the list. ' +
+            'Please try again later');
+      });
     }
   }).catch(function(error) {
     console.error(error);
 
-    postError(session);
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
   });
+
+  lunchList(options, session);
 }
 
 function lunchYes(options, session) {
@@ -401,42 +403,44 @@ function lunchYes(options, session) {
 
   var userPath = lunchPath + '/' + options.firstName;
 
-  data.get(lunchPath).then(function(lunch) {
+  data
+  .where('id', '=', options.firstName)
+  .get(lunchPath)
+  .then(function(results) {
     var today = getToday();
 
-    var i = lunch.length;
+    if (results[0]) {
+      data.update(userPath, {
+        'date': today,
+      }).then(function(response) {
+        console.log(response);
 
-    while (i--) {
-      if (lunch[i].id === options.firstName) {
-        data.update(userPath, {
-          'date': today,
-        }).then(function(lunch) {
-          console.log(lunch);
+        lunchList(options, session);
+      }).catch(function(error) {
+        console.error(error);
 
-          lunchList(options, session);
-        }).catch(function(error) {
-          console.error(error);
+        postError(
+          session,
+          'Oops, I had trouble adding you to the list. ' +
+            'Please try again later');
+      });
 
-          session.send(
-            'Oops, something went wrong. Please try again later.');
-        });
-
-        return;
-      }
+      return;
     }
 
     data.create(lunchPath, {
       'date': today,
       'id': options.firstName,
-    }).then(function(lunch) {
-      console.log(lunch);
+    }).then(function(response) {
+      console.log(response);
 
       lunchList(options, session);
     });
   }).catch(function(error) {
     console.error(error);
 
-    postError(session);
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
   });
 }
 
@@ -650,7 +654,7 @@ bot.dialog('/trivia', [
         var today = getToday();
 
         data.update('trivia/' + options.firstName, {
-          'correct' : statsCorrect,
+          'correct': statsCorrect,
           'date': today,
           'total': statsTotal,
         }).then(function(update) {
