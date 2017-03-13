@@ -218,7 +218,11 @@ function filterGif(url) {
 function getCurrentMoment() {
   var momentFormat = momentjs().tz('America/Los_Angeles').format();
 
-  return momentjs(momentFormat.replace(/-[^-]*$/, ''));
+  var currentMoment = momentFormat.replace(/-[^-]*$/, '');
+
+  console.log('Current moment: ' + currentMoment);
+
+  return momentjs(currentMoment);
 }
 
 function getLunchOptions() {
@@ -249,13 +253,16 @@ function getNextHappyHour() {
   return moment;
 }
 
-function getTrivia() {
-  return triviaArray[Math.floor(Math.random() * triviaArray.length)];
+function getToday() {
+  var today = momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
+
+  console.log('Today: ' + today);
+
+  return today;
 }
 
-function getToday() {
-  console.log(momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD'));
-  return momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
+function getTrivia() {
+  return triviaArray[Math.floor(Math.random() * triviaArray.length)];
 }
 
 function giphyTranslate(searchTerm, callback) {
