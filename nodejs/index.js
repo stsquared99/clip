@@ -605,14 +605,14 @@ bot.dialog('/', function(session) {
     session.send('Did you mean \'pod lotto\'?');
   } else if (command === 'points') {
     session.send('Did you mean \'pod points\'?');
-  } else if (command === 'play') {
-    commandPlay(options, session);
   } else if (command === 'sfw') {
     commandSfw(options, session);
-  } else if (command === 'trivia') {
-    commandTrivia(options, session);
   } else if (whitelist && command === 'lunch') {
     commandLunchHelp(options, session);
+  } else if (whitelist && command === 'play') {
+    commandPlay(options, session);
+  } else if (whitelist && command === 'trivia') {
+    commandTrivia(options, session);
   } else if (whitelist && contains(lunchOptions, command)) {
     commandLunchCrew(options, session);
   } else {
