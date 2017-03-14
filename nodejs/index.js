@@ -24,6 +24,44 @@ function abortDialog(session, error, message) {
   session.cancelDialog();
 }
 
+function addEvent(eventName, callback) {
+  data
+  .where('id', '=', eventName)
+  .get('events')
+  .then(function(results) {
+    var today = getToday();
+
+    if (results[0]) {
+      data.update('events/' + eventName, {
+        'date': today,
+      }).then(function(response) {
+        console.log(response);
+
+        callback(null);
+
+        return;
+      }).catch(function(error) {
+        callback(error);
+      });
+    }
+
+    data.create('events', {
+      'date': today,
+      'id': eventName,
+    }).then(function(response) {
+      console.log(response);
+
+      callback(null);
+
+      return;
+    }).catch(function(error) {
+      callback(error);
+    });
+  }).catch(function(error) {
+    callback(error);
+  });
+}
+
 function commandBeer(options, session) {
   if (isHappyHour(getCurrentMoment())) {
     session.send('(beer) The taps are open! (beer)');
@@ -70,49 +108,16 @@ function commandEvents(options, session) {
       return;
     }
 
-    data
-    .where('id', '=', eventName)
-    .get('events')
-    .then(function(results) {
-      var today = getToday();
-
-      if (results[0]) {
-        data.update('events/' + eventName, {
-          'date': today,
-        }).then(function(response) {
-          console.log(response);
-
-          eventsList(options, session);
-        }).catch(function(error) {
-          console.error(error);
-
-          postError(
-            session,
-            'Oops, I had trouble adding the event. Please try again later');
-        });
-
-        return;
-      }
-
-      data.create('events', {
-        'date': today,
-        'id': eventName,
-      }).then(function(response) {
-        console.log(response);
-
-        eventsList(options, session);
-      }).catch(function(error) {
-        console.error(error);
-
+    addEvent(eventName, function(error) {
+      if (error) {
         postError(
           session,
           'Oops, I had trouble adding the event. Please try again later');
-      });
-    }).catch(function(error) {
-      console.error(error);
 
-      postError(
-        session, 'Oops, I had trouble getting the list. Please try again later');
+          return;
+      }
+
+      eventsList(options, session);
     });
   }
 }
