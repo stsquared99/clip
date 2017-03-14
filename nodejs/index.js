@@ -311,14 +311,17 @@ function getCommandFunction(options) {
 
   if (command === 'beer') {
     return commandBeer;
-  } else if (command === 'die' || command === 'diaf' || message === 'go away' ||
-              message === 'kill yourself' || message === 'shut up') {
+  } else if (
+      command === 'die' || command === 'diaf' || message === 'go away' ||
+      message === 'kill yourself' || message === 'shut up') {
     return commandDie;
   } else if (command === 'duel') {
     return function(options, session) {
       session.send('Did you mean \'pod duel\'?');
     };
-  } else if (command === 'genuine' || command === 'james') {
+  } else if (
+      command === 'james' || message === 'genuine thrilla' ||
+      message === 'masta killa') {
     return function(options, session) {
       session.send(
         'https://twitter.com/griffinmcelroy/status/677966778417283072');
