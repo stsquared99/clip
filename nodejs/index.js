@@ -500,8 +500,6 @@ function eventNo(options, session) {
         console.log(response);
 
         eventList(options, session);
-
-        return;
       }).catch(function(error) {
         console.error(error);
 
@@ -725,7 +723,6 @@ bot.dialog('/', function(session) {
     commandFunction(options, session);
   } else if (options.whitelist) {
     isEvent(options.command, function(error, result) {
-      console.log(0);
       if (error) {
         postError(
           error,
