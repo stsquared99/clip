@@ -38,11 +38,11 @@ function addEvent(eventName, callback) {
         console.log(response);
 
         callback(null);
-
-        return;
       }).catch(function(error) {
         callback(error);
       });
+
+      return;
     }
 
     data.create('events', {
@@ -52,8 +52,6 @@ function addEvent(eventName, callback) {
       console.log(response);
 
       callback(null);
-
-      return;
     }).catch(function(error) {
       callback(error);
     });
@@ -126,7 +124,7 @@ function commandEvents(options, session) {
           session,
           'Oops, I had trouble adding the event. Please try again later');
 
-          return;
+        return;
       }
 
       eventsList(options, session);
@@ -159,7 +157,7 @@ function commandHelp(options, session) {
         'clippy {event name}<br/>clippy {event name} {yes|no}<br/>' +
           'clippy play trivia<br/>clippy trivia<br/>: Show trivia stats';
 
-  if (options.whitelist === true) {
+  if (options.whitelist) {
     session.send(helpResponse + whitelistResponse);
 
     return;
@@ -203,6 +201,12 @@ function commandPlay(options, session) {
           'total': 0,
         }).then(function(trivia) {
           console.log(trivia);
+
+          session.userData['triviaInProgress'] = false;
+
+          session.save();
+
+          session.beginDialog('/trivia');
         }).catch(function(error) {
           console.error(error);
 
@@ -213,15 +217,7 @@ function commandPlay(options, session) {
         });
       } else if (results[0].date === today) {
         session.send('You have already played trivia today');
-
-        return;
       }
-
-      session.userData['triviaInProgress'] = false;
-
-      session.save();
-
-      session.beginDialog('/trivia');
     }).catch(function(error) {
       console.error(error);
 
@@ -402,6 +398,8 @@ function giphyTranslate(searchTerm, callback) {
       console.error(error);
 
       callback(error, null);
+
+      return;
     }
 
     try {
@@ -448,12 +446,8 @@ function isEvent(eventName, callback) {
     }
 
     callback(null, false);
-
-    return;
   }).catch(function(error) {
     callback(error);
-
-    return;
   });
 }
 
@@ -516,15 +510,17 @@ function eventNo(options, session) {
           'Oops, I had trouble removing you from the list. ' +
             'Please try again later');
       });
+
+      return;
     }
+
+    eventList(options, session);
   }).catch(function(error) {
     console.error(error);
 
     postError(
       session, 'Oops, I had trouble getting the list. Please try again later');
   });
-
-  eventList(options, session);
 }
 
 function eventYes(options, session) {
@@ -565,13 +561,13 @@ function eventYes(options, session) {
 
       eventList(options, session);
     }).catch(function(error) {
-  console.error(error);
+      console.error(error);
 
-  postError(
-    session,
-    'Oops, I had trouble adding you to the list. ' +
-      'Please try again later');
-});
+      postError(
+        session,
+        'Oops, I had trouble adding you to the list. ' +
+          'Please try again later');
+    });
   }).catch(function(error) {
     console.error(error);
 
