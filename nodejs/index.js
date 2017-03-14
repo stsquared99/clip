@@ -58,6 +58,75 @@ function commandDie(options, session) {
     dieResponses[Math.floor(Math.random() * dieResponses.length)]);
 }
 
+function commandEvents(options, session) {
+  if (!options.parameters || options.parameters === 'list') {
+    eventsList(options, session);
+  } else {
+    var eventName = options.parameters.replace(/[^a-zA-Z0-9_\-]/g, '');
+
+    if (getCommandFunction({'command': eventName, 'whitelist': true})) {
+      session.send('Sorry, \'' + eventName + '\' is a taken as a command name');
+
+      return;
+    }
+
+    data
+    .where('id', '=', eventName)
+    .get('events')
+    .then(function(results) {
+      var today = getToday();
+
+      if (results[0]) {
+        data.update('events/' + eventName, {
+          'date': today,
+        }).then(function(response) {
+          console.log(response);
+
+          eventsList(options, session);
+        }).catch(function(error) {
+          console.error(error);
+
+          postError(
+            session,
+            'Oops, I had trouble adding the event. Please try again later');
+        });
+
+        return;
+      }
+
+      data.create('events', {
+        'date': today,
+        'id': eventName,
+      }).then(function(response) {
+        console.log(response);
+
+        eventsList(options, session);
+      }).catch(function(error) {
+        console.error(error);
+
+        postError(
+          session,
+          'Oops, I had trouble adding the event. Please try again later');
+      });
+    }).catch(function(error) {
+      console.error(error);
+
+      postError(
+        session, 'Oops, I had trouble getting the list. Please try again later');
+    });
+  }
+}
+
+// function commandEventCrew(options, session) {
+//   if (options.parameters === 'no') {
+//     eventNo(options, session);
+//   } else if (options.parameters === 'yes') {
+//     eventYes(options, session);
+//   } else {
+//     eventList(options, session);
+//   }
+// }
+
 function commandGif(options, session) {
   var searchTerm = options.parameters;
 
@@ -78,9 +147,10 @@ function commandHelp(options, session) {
         '{search term}<br/>clippy sfw';
 
   var whitelistResponse =
-    '<br/>---<br/>clippy lunch<br/>: List lunch options<br/>' +
-      'clippy {lunch option}<br/>clippy {lunch option} {yes|no}<br/>' +
-        'clippy play trivia<br/>clippy trivia<br/>: Show trivia stats';
+    '<br/>---<br/>clippy event<br/>: List today\'s events<br/>' +
+      'clippy event {event name}<br/>: Add a new event<br/>' +
+        'clippy {event name}<br/>clippy {event name} {yes|no}<br/>' +
+          'clippy play trivia<br/>clippy trivia<br/>: Show trivia stats';
 
   if (options.whitelist === true) {
     session.send(helpResponse + whitelistResponse);
@@ -110,29 +180,6 @@ function commandInvalid(options, session) {
     invalidResponses[Math.floor(Math.random() * invalidResponses.length)]);
 }
 
-function commandLunchHelp(options, session) {
-  var lunchOptions = getLunchOptions();
-  var response = 'Lunch options:<br/>---';
-
-  for (var i = 0; i < lunchOptions.length; i++) {
-    response += '<br/>';
-
-    response += lunchOptions[i];
-  }
-
-  session.send(response);
-}
-
-function commandLunchCrew(options, session) {
-  if (options.parameters === 'no') {
-    lunchNo(options, session);
-  } else if (options.parameters === 'yes') {
-    lunchYes(options, session);
-  } else {
-    lunchList(options, session);
-  }
-}
-
 function commandPlay(options, session) {
   if (options.parameters === 'trivia') {
     data
@@ -149,6 +196,13 @@ function commandPlay(options, session) {
           'total': 0,
         }).then(function(trivia) {
           console.log(trivia);
+        }).catch(function(error) {
+          console.error(error);
+
+          postError(
+            session,
+            'Oops, I had trouble updating your trivia status. ' +
+              'Please try again later');
         });
       } else if (results[0].date === today) {
         session.send('You have already played trivia today');
@@ -247,6 +301,50 @@ function filterGif(url) {
   return newUrl;
 }
 
+function getCommandFunction(options) {
+  var command = options.command;
+  var message = options.message;
+  var whitelist = options.whitelist;
+
+  if (command === 'beer') {
+    return commandBeer;
+  } else if (command === 'die' || command === 'diaf' || message === 'go away' ||
+              message === 'kill yourself' || message === 'shut up') {
+    return commandDie;
+  } else if (command === 'duel') {
+    return function(options, session) {
+      session.send('Did you mean \'pod duel\'?');
+    };
+  } else if (command === 'genuine' || command === 'james') {
+    return function(options, session) {
+      session.send(
+        'https://twitter.com/griffinmcelroy/status/677966778417283072');
+    };
+  } else if (command === 'gif') {
+    return commandGif;
+  } else if (command === 'help') {
+    return commandHelp;
+  } else if (command === 'lotto') {
+    return function(options, session) {
+      session.send('Did you mean \'pod lotto\'?');
+    };
+  } else if (command === 'points') {
+    return function(options, session) {
+      session.send('Did you mean \'pod points\'?');
+    };
+  } else if (command === 'sfw') {
+    return commandSfw;
+  } else if (whitelist && (command === 'event' || command === 'events')) {
+    return commandEvents;
+  } else if (whitelist && command === 'play') {
+    return commandPlay;
+  } else if (whitelist && command === 'trivia') {
+    return commandTrivia;
+  }
+
+  return null;
+}
+
 function getCurrentMoment() {
   var momentFormat = momentjs().tz('America/Los_Angeles').format();
 
@@ -255,15 +353,6 @@ function getCurrentMoment() {
   console.log('Current moment: ' + currentMoment);
 
   return momentjs(currentMoment);
-}
-
-function getLunchOptions() {
-  return [
-    'brb',
-    'jjs',
-    'pho',
-    'pizza',
-  ];
 }
 
 function getNextHappyHour() {
@@ -346,27 +435,141 @@ function isValidTriviaAnswer(string) {
   return false;
 }
 
-function lunchList(options, session) {
-  var path = 'lunch-' + options.command;
+// function eventList(options, session) {
+//   var path = 'event-' + options.command;
+//   var today = getToday();
+//
+//   var response = null;
+//
+//   if (options.command === 'brb') {
+//     response = 'BRB crew today:';
+//   } else if (options.command === 'jjs') {
+//     response = 'JJs crew today:';
+//   } else {
+//     var first = options.command.charAt(0).toUpperCase();
+//
+//     response = options.command.replace(/^[a-z]/, first) + ' crew today:';
+//   }
+//
+//   data
+//   .limit(100)
+//   .orderBy('id')
+//   .where('date', '=', today)
+//   .get(path)
+//   .then(function(results) {
+//     for (var i = 0; i < results.length; i++) {
+//       response += '<br/>';
+//
+//       response += results[i].id;
+//     }
+//
+//     session.send(response);
+//   }).catch(function(error) {
+//     console.error(error);
+//
+//     postError(
+//       session, 'Oops, I had trouble getting the list. Please try again later');
+//   });
+// }
+//
+// function eventNo(options, session) {
+//   var eventPath = 'event-' + options.command;
+//
+//   var userPath = eventPath + '/' + options.firstName;
+//
+//   data
+//   .where('id', '=', options.firstName)
+//   .get(eventPath)
+//   .then(function(results) {
+//     if (results[0]) {
+//       data.delete(userPath).then(function(response) {
+//         console.log(response);
+//
+//         eventList(options, session);
+//
+//         return;
+//       }).catch(function(error) {
+//         console.error(error);
+//
+//         postError(
+//           session,
+//           'Oops, I had trouble removing you from the list. ' +
+//             'Please try again later');
+//       });
+//     }
+//   }).catch(function(error) {
+//     console.error(error);
+//
+//     postError(
+//       session, 'Oops, I had trouble getting the list. Please try again later');
+//   });
+//
+//   eventList(options, session);
+// }
+//
+// function eventYes(options, session) {
+//   var eventPath = 'event-' + options.command;
+//
+//   var userPath = eventPath + '/' + options.firstName;
+//
+//   data
+//   .where('id', '=', options.firstName)
+//   .get(eventPath)
+//   .then(function(results) {
+//     var today = getToday();
+//
+//     if (results[0]) {
+//       data.update(userPath, {
+//         'date': today,
+//       }).then(function(response) {
+//         console.log(response);
+//
+//         eventList(options, session);
+//       }).catch(function(error) {
+//         console.error(error);
+//
+//         postError(
+//           session,
+//           'Oops, I had trouble adding you to the list. ' +
+//             'Please try again later');
+//       });
+//
+//       return;
+//     }
+//
+//     data.create(eventPath, {
+//       'date': today,
+//       'id': options.firstName,
+//     }).then(function(response) {
+//       console.log(response);
+//
+//       eventList(options, session);
+//     }).catch(function(error) {
+//   console.error(error);
+//
+//   postError(
+//     session,
+//     'Oops, I had trouble adding you to the list. ' +
+//       'Please try again later');
+// });
+//   }).catch(function(error) {
+//     console.error(error);
+//
+//     postError(
+//       session, 'Oops, I had trouble getting the list. Please try again later');
+//   });
+// }
+
+function eventsList(options, session) {
   var today = getToday();
 
-  var response = null;
-
-  if (options.command === 'brb') {
-    response = 'BRB crew today:';
-  } else if (options.command === 'jjs') {
-    response = 'JJs crew today:';
-  } else {
-    var first = options.command.charAt(0).toUpperCase();
-
-    response = options.command.replace(/^[a-z]/, first) + ' crew today:';
-  }
+  var response = 'Today\'s events:<br/>---';
 
   data
-  .limit(100)
+  .limit(1000)
   .orderBy('id')
   .where('date', '=', today)
-  .get(path)
+  .get('events')
   .then(function(results) {
     for (var i = 0; i < results.length; i++) {
       response += '<br/>';
@@ -379,88 +582,8 @@ function lunchList(options, session) {
     console.error(error);
 
     postError(
-      session, 'Oops, I had trouble getting the list. Please try again later');
-  });
-}
-
-function lunchNo(options, session) {
-  var lunchPath = 'lunch-' + options.command;
-
-  var userPath = lunchPath + '/' + options.firstName;
-
-  data
-  .where('id', '=', options.firstName)
-  .get(lunchPath)
-  .then(function(results) {
-    if (results[0]) {
-      data.delete(userPath).then(function(response) {
-        console.log(response);
-
-        lunchList(options, session);
-
-        return;
-      }).catch(function(error) {
-        console.error(error);
-
-        postError(
-          session,
-          'Oops, I had trouble removing you from the list. ' +
-            'Please try again later');
-      });
-    }
-  }).catch(function(error) {
-    console.error(error);
-
-    postError(
-      session, 'Oops, I had trouble getting the list. Please try again later');
-  });
-
-  lunchList(options, session);
-}
-
-function lunchYes(options, session) {
-  var lunchPath = 'lunch-' + options.command;
-
-  var userPath = lunchPath + '/' + options.firstName;
-
-  data
-  .where('id', '=', options.firstName)
-  .get(lunchPath)
-  .then(function(results) {
-    var today = getToday();
-
-    if (results[0]) {
-      data.update(userPath, {
-        'date': today,
-      }).then(function(response) {
-        console.log(response);
-
-        lunchList(options, session);
-      }).catch(function(error) {
-        console.error(error);
-
-        postError(
-          session,
-          'Oops, I had trouble adding you to the list. ' +
-            'Please try again later');
-      });
-
-      return;
-    }
-
-    data.create(lunchPath, {
-      'date': today,
-      'id': options.firstName,
-    }).then(function(response) {
-      console.log(response);
-
-      lunchList(options, session);
-    });
-  }).catch(function(error) {
-    console.error(error);
-
-    postError(
-      session, 'Oops, I had trouble getting the list. Please try again later');
+      session,
+      'Oops, I had trouble getting the list. Please try again later');
   });
 }
 
@@ -579,41 +702,17 @@ server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function(session) {
   var options = parseOptions(session);
+  //
+  // var command = options.command;
+  // var message = options.message;
+  // var whitelist = options.whitelist;
 
-  var command = options.command;
-  var message = options.message;
-  var whitelist = options.whitelist;
+  var commandFunction = getCommandFunction(options);
 
-  var lunchOptions = getLunchOptions();
-
-  if (command === 'beer') {
-    commandBeer(options, session);
-  } else if (command === 'die' || command === 'diaf' || message === 'go away' ||
-              message === 'kill yourself' || message === 'shut up') {
-    commandDie(options, session);
-  } else if (command === 'duel') {
-    session.send('Did you mean \'pod duel\'?');
-  } else if (command === 'genuine' || command === 'james') {
-    session.send(
-      'https://twitter.com/griffinmcelroy/status/677966778417283072');
-  } else if (command === 'gif') {
-    commandGif(options, session);
-  } else if (command === 'help') {
-    commandHelp(options, session);
-  } else if (command === 'lotto') {
-    session.send('Did you mean \'pod lotto\'?');
-  } else if (command === 'points') {
-    session.send('Did you mean \'pod points\'?');
-  } else if (command === 'sfw') {
-    commandSfw(options, session);
-  } else if (whitelist && command === 'lunch') {
-    commandLunchHelp(options, session);
-  } else if (whitelist && command === 'play') {
-    commandPlay(options, session);
-  } else if (whitelist && command === 'trivia') {
-    commandTrivia(options, session);
-  } else if (whitelist && contains(lunchOptions, command)) {
-    commandLunchCrew(options, session);
+  if (commandFunction) {
+    commandFunction(options, session);
+  // } else if (whitelist && isEvent(options, session)) {
+  //   commandEventCrew(options, session);
   } else {
     commandInvalid(options, session);
   }
