@@ -81,6 +81,9 @@ function commandBeer(options, session) {
 function commandDie(options, session) {
   var dieResponses = [
     'Did you mean \'Your mom\'?',
+    'Good, good. Give in to your anger',
+    'Good, good. Let the hate flow through you',
+    'Haters gonna hate',
     'Haters gonna hate',
     'I know where you live',
     'I\'m the captain now',
