@@ -660,6 +660,7 @@ function parseOptions(session) {
     command: command,
     conversationId: conversationId,
     firstName: firstName,
+    message: message,
     parameters: parameters,
     session: session,
     userName: userName,
