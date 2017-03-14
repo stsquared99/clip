@@ -96,6 +96,16 @@ function commandDie(options, session) {
     dieResponses[Math.floor(Math.random() * dieResponses.length)]);
 }
 
+function commandEvent(options, session) {
+  if (options.parameters === 'no') {
+    eventNo(options, session);
+  } else if (options.parameters === 'yes') {
+    eventYes(options, session);
+  } else {
+    eventList(options, session);
+  }
+}
+
 function commandEvents(options, session) {
   if (!options.parameters || options.parameters === 'list') {
     eventsList(options, session);
@@ -110,6 +120,8 @@ function commandEvents(options, session) {
 
     addEvent(eventName, function(error) {
       if (error) {
+        console.log(error);
+
         postError(
           session,
           'Oops, I had trouble adding the event. Please try again later');
@@ -121,16 +133,6 @@ function commandEvents(options, session) {
     });
   }
 }
-
-// function commandEventCrew(options, session) {
-//   if (options.parameters === 'no') {
-//     eventNo(options, session);
-//   } else if (options.parameters === 'yes') {
-//     eventYes(options, session);
-//   } else {
-//     eventList(options, session);
-//   }
-// }
 
 function commandGif(options, session) {
   var searchTerm = options.parameters;
@@ -431,6 +433,30 @@ function isHappyHour(moment) {
   return false;
 }
 
+function isEvent(eventName, callback) {
+  var today = getToday();
+
+  data
+  .where('id', '=', eventName)
+  .where('date', '=', today)
+  .get('events')
+  .then(function(results) {
+    if (results[0]) {
+      callback(null, true);
+
+      return;
+    }
+
+    callback(null, false);
+
+    return;
+  }).catch(function(error) {
+    callback(error);
+
+    return;
+  });
+}
+
 function isValidTriviaAnswer(string) {
   if (string === 'a' || string === 'b' || string === 'c' || string === 'd' ||
       string === 'A' || string === 'B' || string === 'C' || string === 'D') {
@@ -440,130 +466,119 @@ function isValidTriviaAnswer(string) {
   return false;
 }
 
-// function eventList(options, session) {
-//   var path = 'event-' + options.command;
-//   var today = getToday();
-//
-//   var response = null;
-//
-//   if (options.command === 'brb') {
-//     response = 'BRB crew today:';
-//   } else if (options.command === 'jjs') {
-//     response = 'JJs crew today:';
-//   } else {
-//     var first = options.command.charAt(0).toUpperCase();
-//
-//     response = options.command.replace(/^[a-z]/, first) + ' crew today:';
-//   }
-//
-//   data
-//   .limit(100)
-//   .orderBy('id')
-//   .where('date', '=', today)
-//   .get(path)
-//   .then(function(results) {
-//     for (var i = 0; i < results.length; i++) {
-//       response += '<br/>';
-//
-//       response += results[i].id;
-//     }
-//
-//     session.send(response);
-//   }).catch(function(error) {
-//     console.error(error);
-//
-//     postError(
-//       session, 'Oops, I had trouble getting the list. Please try again later');
-//   });
-// }
-//
-// function eventNo(options, session) {
-//   var eventPath = 'event-' + options.command;
-//
-//   var userPath = eventPath + '/' + options.firstName;
-//
-//   data
-//   .where('id', '=', options.firstName)
-//   .get(eventPath)
-//   .then(function(results) {
-//     if (results[0]) {
-//       data.delete(userPath).then(function(response) {
-//         console.log(response);
-//
-//         eventList(options, session);
-//
-//         return;
-//       }).catch(function(error) {
-//         console.error(error);
-//
-//         postError(
-//           session,
-//           'Oops, I had trouble removing you from the list. ' +
-//             'Please try again later');
-//       });
-//     }
-//   }).catch(function(error) {
-//     console.error(error);
-//
-//     postError(
-//       session, 'Oops, I had trouble getting the list. Please try again later');
-//   });
-//
-//   eventList(options, session);
-// }
-//
-// function eventYes(options, session) {
-//   var eventPath = 'event-' + options.command;
-//
-//   var userPath = eventPath + '/' + options.firstName;
-//
-//   data
-//   .where('id', '=', options.firstName)
-//   .get(eventPath)
-//   .then(function(results) {
-//     var today = getToday();
-//
-//     if (results[0]) {
-//       data.update(userPath, {
-//         'date': today,
-//       }).then(function(response) {
-//         console.log(response);
-//
-//         eventList(options, session);
-//       }).catch(function(error) {
-//         console.error(error);
-//
-//         postError(
-//           session,
-//           'Oops, I had trouble adding you to the list. ' +
-//             'Please try again later');
-//       });
-//
-//       return;
-//     }
-//
-//     data.create(eventPath, {
-//       'date': today,
-//       'id': options.firstName,
-//     }).then(function(response) {
-//       console.log(response);
-//
-//       eventList(options, session);
-//     }).catch(function(error) {
-//   console.error(error);
-//
-//   postError(
-//     session,
-//     'Oops, I had trouble adding you to the list. ' +
-//       'Please try again later');
-// });
-//   }).catch(function(error) {
-//     console.error(error);
-//
-//     postError(
-//       session, 'Oops, I had trouble getting the list. Please try again later');
-//   });
-// }
+function eventList(options, session) {
+  var today = getToday();
+
+  var response = options.command + ' crew today:';
+
+  data
+  .limit(100)
+  .orderBy('id')
+  .where('date', '=', today)
+  .get('event-' + options.command)
+  .then(function(results) {
+    for (var i = 0; i < results.length; i++) {
+      response += '<br/>';
+
+      response += results[i].id;
+    }
+
+    session.send(response);
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
+  });
+}
+
+function eventNo(options, session) {
+  var eventPath = 'event-' + options.command;
+
+  var userPath = eventPath + '/' + options.firstName;
+
+  data
+  .where('id', '=', options.firstName)
+  .get(eventPath)
+  .then(function(results) {
+    if (results[0]) {
+      data.delete(userPath).then(function(response) {
+        console.log(response);
+
+        eventList(options, session);
+
+        return;
+      }).catch(function(error) {
+        console.error(error);
+
+        postError(
+          session,
+          'Oops, I had trouble removing you from the list. ' +
+            'Please try again later');
+      });
+    }
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
+  });
+
+  eventList(options, session);
+}
+
+function eventYes(options, session) {
+  var eventPath = 'event-' + options.command;
+
+  var userPath = eventPath + '/' + options.firstName;
+
+  data
+  .where('id', '=', options.firstName)
+  .get(eventPath)
+  .then(function(results) {
+    var today = getToday();
+
+    if (results[0]) {
+      data.update(userPath, {
+        'date': today,
+      }).then(function(response) {
+        console.log(response);
+
+        eventList(options, session);
+      }).catch(function(error) {
+        console.error(error);
+
+        postError(
+          session,
+          'Oops, I had trouble adding you to the list. ' +
+            'Please try again later');
+      });
+
+      return;
+    }
+
+    data.create(eventPath, {
+      'date': today,
+      'id': options.firstName,
+    }).then(function(response) {
+      console.log(response);
+
+      eventList(options, session);
+    }).catch(function(error) {
+  console.error(error);
+
+  postError(
+    session,
+    'Oops, I had trouble adding you to the list. ' +
+      'Please try again later');
+});
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session, 'Oops, I had trouble getting the list. Please try again later');
+  });
+}
 
 function eventsList(options, session) {
   var today = getToday();
@@ -707,17 +722,47 @@ server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function(session) {
   var options = parseOptions(session);
-  //
-  // var command = options.command;
-  // var message = options.message;
-  // var whitelist = options.whitelist;
 
   var commandFunction = getCommandFunction(options);
 
   if (commandFunction) {
     commandFunction(options, session);
-  // } else if (whitelist && isEvent(options, session)) {
-  //   commandEventCrew(options, session);
+  } else if (options.whitelist) {
+    isEvent(options.command, function(error, result) {
+      console.log(0);
+      if (error) {
+        postError(
+          error,
+          'Oops, I had trouble checking for events. Please try again later.');
+      } else if (result) {
+        commandEvent(options, session);
+      } else if (options.parameters === 'yes') {
+        var eventName = options.command.replace(/[^a-zA-Z0-9_\-]/g, '');
+
+        if (getCommandFunction({'command': eventName, 'whitelist': true})) {
+          session.send(
+            'Sorry, \'' + eventName + '\' is a taken as a command name');
+
+          return;
+        }
+
+        addEvent(eventName, function(error) {
+          if (error) {
+            console.log(error);
+
+            postError(
+              session,
+              'Oops, I had trouble adding the event. Please try again later');
+
+              return;
+          }
+
+          commandEvent(options, session);
+        });
+      } else {
+        commandInvalid(options, session);
+      }
+    });
   } else {
     commandInvalid(options, session);
   }
