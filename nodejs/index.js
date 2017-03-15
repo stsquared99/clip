@@ -492,7 +492,7 @@ function eventList(options, session) {
   .limit(100)
   .orderBy('id')
   .where('date', '=', today)
-  .get('event-' + options.command)
+  .get('event_' + options.command)
   .then(function(results) {
     for (var i = 0; i < results.length; i++) {
       response += '<br/>';
@@ -510,7 +510,7 @@ function eventList(options, session) {
 }
 
 function eventNo(options, session) {
-  var eventPath = 'event-' + options.command;
+  var eventPath = 'event_' + options.command;
 
   var userPath = eventPath + '/' + options.firstName;
 
@@ -545,7 +545,7 @@ function eventNo(options, session) {
 }
 
 function eventYes(options, session) {
-  var eventPath = 'event-' + options.command;
+  var eventPath = 'event_' + options.command;
 
   var userPath = eventPath + '/' + options.firstName;
 
