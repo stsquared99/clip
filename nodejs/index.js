@@ -2,6 +2,7 @@ var builder = require('botbuilder');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
 var restify = require('restify');
+var schedule = require('node-schedule');
 var wedeploy = require('wedeploy');
 
 var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
@@ -9,7 +10,7 @@ var data = wedeploy.data(process.env.WEDEPLOY_DATA_URL);
 var triviaArray = require('./trivia.json');
 
 // =========================================================
-// Declarations
+// Functions
 // =========================================================
 
 function abortDialog(session, error, message) {
@@ -730,6 +731,53 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector);
 
 server.post('/api/messages', connector.listen());
+
+//
+// Schedule happy hour
+//
+
+var date = new Date(getNextHappyHour().valueOf());
+
+var scheduleString =
+  date.getMinutes() + ' ' + date.getHours() + ' * * ' + date.getDay();
+
+schedule.scheduleJob(scheduleString, function() {
+  var happyHourAddress = {
+    bot: {
+      id: '28:e2532843-f1a4-4f89-9896-a885d4d97dc0',
+      name: 'clippy',
+    },
+    channelId: 'skype',
+    conversation: {
+      id: '19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype',
+      isGroup: true,
+     },
+    id: '1489606133275',
+    serviceUrl: 'https://smba.trafficmanager.net/apis/',
+    useAuth: true,
+    user: {
+      id: '29:1s8dODT66xXniSr6AdqdtQZP-m-gtf4EoHG3vZL4tX58',
+      name: 'Sam Tran',
+    },
+  };
+
+  var happyHourMessage =
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer) (drunk) (beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer) (drunk) (beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
+    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>';
+
+  var message =
+    new builder.Message().address(happyHourAddress).text(happyHourMessage);
+
+  bot.send(message);
+});
 
 // =========================================================
 // Bots Dialogs
