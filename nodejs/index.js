@@ -365,19 +365,19 @@ function getCurrentMoment() {
   return momentjs(currentMoment);
 }
 
-// function getMoment(year, month, day, hour, minutes, seconds) {
-//   var dateString =
-//     year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
-//       day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
-//         hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
-//           minutes.toString().replace(/^[0-9]$/, '0$&');
-//
-//   var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
-//
-//   console.log('Moment: ' + moment);
-//
-//   return momentjs(moment);
-// }
+function getMoment(year, month, day, hour, minutes, seconds) {
+  var dateString =
+    year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
+      day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
+        hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
+          minutes.toString().replace(/^[0-9]$/, '0$&');
+
+  var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
+
+  console.log('Moment: ' + moment);
+
+  return momentjs(moment);
+}
 
 function getNextHappyHour() {
   var moment = getCurrentMoment();
@@ -738,7 +738,9 @@ server.post('/api/messages', connector.listen());
 // Schedule happy hour
 //
 
-var date = new Date(getNextHappyHour().valueOf());
+var date = new Date(getMoment(2017, 3, 17, 15, 0).valueOf());
+
+console.log(date);
 
 var scheduleString =
   date.getMinutes() + ' ' + date.getHours() + ' * * ' + date.getDay();
