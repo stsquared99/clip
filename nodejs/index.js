@@ -364,6 +364,20 @@ function getCurrentMoment() {
   return momentjs(currentMoment);
 }
 
+function getMoment(year, month, day, hour, minutes, seconds) {
+  var dateString =
+    year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
+      day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
+        hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
+          minutes.toString().replace(/^[0-9]$/, '0$&');
+
+  var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
+
+  console.log('Moment: ' + moment);
+
+  return momentjs(moment);
+}
+
 function getNextHappyHour() {
   var moment = getCurrentMoment();
 
