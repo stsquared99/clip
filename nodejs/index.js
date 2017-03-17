@@ -1,4 +1,5 @@
 var builder = require('botbuilder');
+var didyoumean = require('didyoumean');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
 var restify = require('restify');
@@ -286,203 +287,6 @@ function contains(array, object) {
   return false;
 }
 
-function filterGif(url) {
-  var filter = {
-    'Q7JjlnGKGuPpS': '4P1RLExaH5HQQ',
-    '6SQMmvQWoh2Eg': 'ajSHSow1ET2OQ',
-    'jY0bXU5XAyqeA': 'So3Dotqhz3gQM',
-    'TlK63EJLjCEdYz3a6g8': 'yAP1X619l0LMQ',
-    'pbcG7Xj1OE7Zu': 'TlK63EIqyXzpb38JZte',
-  };
-
-  var id = filter[url.replace(/\/giphy.gif/, '').replace(/.*\//, '')];
-
-  if (id == null) {
-    return url;
-  }
-
-  var newUrl = 'https://media.giphy.com/media/' + id + '/giphy.gif';
-
-  console.log('Filter replaced ', url, ' with ', newUrl);
-
-  return newUrl;
-}
-
-function getCommandFunction(options) {
-  var command = options.command;
-  var message = options.message;
-  var whitelist = options.whitelist;
-
-  if (command === 'beer') {
-    return commandBeer;
-  } else if (
-      command === 'die' || command === 'diaf' || message === 'go away' ||
-      message === 'kill yourself' || message === 'shut up') {
-    return commandDie;
-  } else if (command === 'duel') {
-    return function(options, session) {
-      session.send('Did you mean \'pod duel\'?');
-    };
-  } else if (
-      command === 'james' || message === 'genuine thrilla' ||
-      message === 'masta killa') {
-    return function(options, session) {
-      session.send(
-        'https://twitter.com/griffinmcelroy/status/677966778417283072');
-    };
-  } else if (command === 'gif') {
-    return commandGif;
-  } else if (command === 'help') {
-    return commandHelp;
-  } else if (command === 'lotto') {
-    return function(options, session) {
-      session.send('Did you mean \'pod lotto\'?');
-    };
-  } else if (command === 'points') {
-    return function(options, session) {
-      session.send('Did you mean \'pod points\'?');
-    };
-  } else if (command === 'sfw') {
-    return commandSfw;
-  } else if (whitelist && (command === 'event' || command === 'events')) {
-    return commandEvents;
-  } else if (whitelist && command === 'play') {
-    return commandPlay;
-  } else if (whitelist && command === 'trivia') {
-    return commandTrivia;
-  }
-
-  return null;
-}
-
-function getCurrentMoment() {
-  var momentFormat = momentjs().tz('America/Los_Angeles').format();
-
-  var currentMoment = momentFormat.replace(/-[^-]*$/, '');
-
-  console.log('Current moment: ' + currentMoment);
-
-  return momentjs(currentMoment);
-}
-
-function getMoment(year, month, day, hour, minutes, seconds) {
-  var dateString =
-    year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
-      day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
-        hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
-          minutes.toString().replace(/^[0-9]$/, '0$&');
-
-  var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
-
-  console.log('Moment: ' + moment);
-
-  return momentjs(moment);
-}
-
-function getNextHappyHour() {
-  var moment = getCurrentMoment();
-
-  if (moment.day() === 5 && moment.hour() >= 15) {
-    moment.add(1, 'days');
-  }
-
-  moment.hour(15);
-  moment.minutes(0);
-  moment.seconds(0);
-  moment.milliseconds(0);
-
-  while (!isHappyHour(moment)) {
-    moment.add(1, 'days');
-  }
-
-  console.log('Next happy hour: ' + moment);
-
-  return moment;
-}
-
-function getToday() {
-  var today = momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
-
-  console.log('Today: ' + today);
-
-  return today;
-}
-
-function getTrivia() {
-  return triviaArray[Math.floor(Math.random() * triviaArray.length)];
-}
-
-function giphyTranslate(searchTerm, callback) {
-  giphy.translate({
-    rating: 'g',
-    s: searchTerm,
-  }, function(error, response) {
-    if (error) {
-      console.error(error);
-
-      callback(error, null);
-
-      return;
-    }
-
-    try {
-      var dataJSON = response['data'];
-
-      var imagesJSON = dataJSON.images;
-
-      var originalJSON = imagesJSON.original;
-
-      var url = originalJSON.url;
-
-      console.log('Giphy translate url: ', url);
-
-      callback(null, url);
-    } catch (exception) {
-      console.error(exception);
-      console.log('Giphy translate url: ', null);
-
-      callback(exception, null);
-    }
-  });
-}
-
-function isHappyHour(moment) {
-  if (moment.day() === 5 && moment.hour() === 15) {
-    return true;
-  }
-
-  return false;
-}
-
-function isEvent(eventName, callback) {
-  var today = getToday();
-
-  data
-  .where('id', '=', eventName)
-  .where('date', '=', today)
-  .get('events')
-  .then(function(results) {
-    if (results[0]) {
-      callback(null, true);
-
-      return;
-    }
-
-    callback(null, false);
-  }).catch(function(error) {
-    callback(error);
-  });
-}
-
-function isValidTriviaAnswer(string) {
-  if (string === 'a' || string === 'b' || string === 'c' || string === 'd' ||
-      string === 'A' || string === 'B' || string === 'C' || string === 'D') {
-    return true;
-  }
-
-  return false;
-}
-
 function eventList(options, session) {
   var today = getToday();
 
@@ -622,6 +426,203 @@ function eventsList(options, session) {
       session,
       'Oops, I had trouble getting the list. Please try again later');
   });
+}
+
+function filterGif(url) {
+  var filter = {
+    'Q7JjlnGKGuPpS': '4P1RLExaH5HQQ',
+    '6SQMmvQWoh2Eg': 'ajSHSow1ET2OQ',
+    'jY0bXU5XAyqeA': 'So3Dotqhz3gQM',
+    'TlK63EJLjCEdYz3a6g8': 'yAP1X619l0LMQ',
+    'pbcG7Xj1OE7Zu': 'TlK63EIqyXzpb38JZte',
+  };
+
+  var id = filter[url.replace(/\/giphy.gif/, '').replace(/.*\//, '')];
+
+  if (id == null) {
+    return url;
+  }
+
+  var newUrl = 'https://media.giphy.com/media/' + id + '/giphy.gif';
+
+  console.log('Filter replaced ', url, ' with ', newUrl);
+
+  return newUrl;
+}
+
+function getCommandFunction(options) {
+  var command = options.command;
+  var message = options.message;
+  var whitelist = options.whitelist;
+
+  if (command === 'beer') {
+    return commandBeer;
+  } else if (
+      command === 'die' || command === 'diaf' || message === 'go away' ||
+      message === 'kill yourself' || message === 'shut up') {
+    return commandDie;
+  } else if (command === 'duel') {
+    return function(options, session) {
+      session.send('Did you mean \'pod duel\'?');
+    };
+  } else if (
+      command === 'james' || message === 'genuine thrilla' ||
+      message === 'masta killa') {
+    return function(options, session) {
+      session.send(
+        'https://twitter.com/griffinmcelroy/status/677966778417283072');
+    };
+  } else if (command === 'gif') {
+    return commandGif;
+  } else if (command === 'help') {
+    return commandHelp;
+  } else if (command === 'lotto') {
+    return function(options, session) {
+      session.send('Did you mean \'pod lotto\'?');
+    };
+  } else if (command === 'points') {
+    return function(options, session) {
+      session.send('Did you mean \'pod points\'?');
+    };
+  } else if (command === 'sfw') {
+    return commandSfw;
+  } else if (whitelist && (command === 'event' || command === 'events')) {
+    return commandEvents;
+  } else if (whitelist && command === 'play') {
+    return commandPlay;
+  } else if (whitelist && command === 'trivia') {
+    return commandTrivia;
+  }
+
+  return null;
+}
+
+function getCurrentMoment() {
+  var momentFormat = momentjs().tz('America/Los_Angeles').format();
+
+  var currentMoment = momentFormat.replace(/-[^-]*$/, '');
+
+  console.log('Current moment: ' + currentMoment);
+
+  return momentjs(currentMoment);
+}
+
+function getEvent(eventName, callback) {
+  var today = getToday();
+
+  data
+  .where('date', '=', today)
+  .get('events')
+  .then(function(results) {
+    var events = [];
+    var i = results.length;
+
+    while (i--) {
+      events.push(results[i].id)
+    }
+
+    callback(null, didyoumean(eventName, events));
+  }).catch(function(error) {
+    callback(error, null);
+  });
+}
+
+function getMoment(year, month, day, hour, minutes, seconds) {
+  var dateString =
+    year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
+      day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
+        hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
+          minutes.toString().replace(/^[0-9]$/, '0$&');
+
+  var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
+
+  console.log('Moment: ' + moment);
+
+  return momentjs(moment);
+}
+
+function getNextHappyHour() {
+  var moment = getCurrentMoment();
+
+  if (moment.day() === 5 && moment.hour() >= 15) {
+    moment.add(1, 'days');
+  }
+
+  moment.hour(15);
+  moment.minutes(0);
+  moment.seconds(0);
+  moment.milliseconds(0);
+
+  while (!isHappyHour(moment)) {
+    moment.add(1, 'days');
+  }
+
+  console.log('Next happy hour: ' + moment);
+
+  return moment;
+}
+
+function getToday() {
+  var today = momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
+
+  console.log('Today: ' + today);
+
+  return today;
+}
+
+function getTrivia() {
+  return triviaArray[Math.floor(Math.random() * triviaArray.length)];
+}
+
+function giphyTranslate(searchTerm, callback) {
+  giphy.translate({
+    rating: 'g',
+    s: searchTerm,
+  }, function(error, response) {
+    if (error) {
+      console.error(error);
+
+      callback(error, null);
+
+      return;
+    }
+
+    try {
+      var dataJSON = response['data'];
+
+      var imagesJSON = dataJSON.images;
+
+      var originalJSON = imagesJSON.original;
+
+      var url = originalJSON.url;
+
+      console.log('Giphy translate url: ', url);
+
+      callback(null, url);
+    } catch (exception) {
+      console.error(exception);
+      console.log('Giphy translate url: ', null);
+
+      callback(exception, null);
+    }
+  });
+}
+
+function isHappyHour(moment) {
+  if (moment.day() === 5 && moment.hour() === 15) {
+    return true;
+  }
+
+  return false;
+}
+
+function isValidTriviaAnswer(string) {
+  if (string === 'a' || string === 'b' || string === 'c' || string === 'd' ||
+      string === 'A' || string === 'B' || string === 'C' || string === 'D') {
+    return true;
+  }
+
+  return false;
 }
 
 function parseOptions(session) {
@@ -795,24 +796,22 @@ bot.dialog('/', function(session) {
   if (commandFunction) {
     commandFunction(options, session);
   } else if (options.whitelist) {
-    isEvent(options.command, function(error, result) {
+
+    getEvent(options.command, function(error, result) {
       if (error) {
         postError(
-          error,
+          session, error,
           'Oops, I had trouble checking for events. Please try again later.');
-      } else if (result) {
+      } else if (options.command === result) {
         commandEvent(options, session);
       } else if (options.parameters === 'yes') {
-        var eventName = options.command.replace(/[^a-zA-Z0-9_\-]/g, '');
-
-        if (getCommandFunction({'command': eventName, 'whitelist': true})) {
-          session.send(
-            'Sorry, \'' + eventName + '\' is a taken as a command name');
+        if (result) {
+          session.send('Did you mean \'' + result + '\'?');
 
           return;
         }
 
-        addEvent(eventName, function(error) {
+        addEvent(options.command, function(error) {
           if (error) {
             console.log(error);
 
@@ -825,6 +824,8 @@ bot.dialog('/', function(session) {
 
           commandEvent(options, session);
         });
+      } else if (result) {
+        session.send('Did you mean \'' + result + '\'?');
       } else {
         commandInvalid(options, session);
       }
