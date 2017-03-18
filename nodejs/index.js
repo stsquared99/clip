@@ -1,4 +1,5 @@
 var builder = require('botbuilder');
+var chrono = require('chrono-node');
 var didyoumean = require('didyoumean');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
@@ -244,6 +245,14 @@ function commandSfw(options, session) {
   postGif('puppies', session);
 }
 
+function commandTimer(options, session) {
+  var date = chrono.parseDate(options.parameters)
+
+  session.send(
+    'Timer set for: ' +
+      momentjs.tz(date, 'America/Los_Angeles').format('YYYY-MM-DD HH:mm'));
+}
+
 function commandTrivia(options, session) {
   if (options.parameters === 'play') {
     session.send('Did you mean \'play trivia\'?');
@@ -486,6 +495,8 @@ function getCommandFunction(options) {
     };
   } else if (command === 'sfw') {
     return commandSfw;
+  } else if (command === 'time' || command === 'timer') {
+    return commandTimer;
   } else if (whitelist && (command === 'event' || command === 'events')) {
     return commandEvents;
   } else if (whitelist && command === 'play') {
@@ -527,12 +538,14 @@ function getEvent(eventName, callback) {
   });
 }
 
-function getMoment(year, month, day, hour, minutes, seconds) {
+function getMoment(year, month, day, hour, minutes) {
   var dateString =
     year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
       day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
         hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
           minutes.toString().replace(/^[0-9]$/, '0$&');
+
+  console.log(dateString);
 
   var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
 
