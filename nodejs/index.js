@@ -246,7 +246,7 @@ function commandSfw(options, session) {
 }
 
 function commandTimer(options, session) {
-  var date = chrono.parseDate(options.parameters)
+  var date = chrono.parseDate(options.parameters);
 
   session.send(
     'Timer set for: ' +
@@ -529,7 +529,7 @@ function getEvent(eventName, callback) {
     var i = results.length;
 
     while (i--) {
-      events.push(results[i].id)
+      events.push(results[i].id);
     }
 
     callback(null, didyoumean(eventName, events));
@@ -809,7 +809,6 @@ bot.dialog('/', function(session) {
   if (commandFunction) {
     commandFunction(options, session);
   } else if (options.whitelist) {
-
     getEvent(options.command, function(error, result) {
       if (error) {
         postError(
