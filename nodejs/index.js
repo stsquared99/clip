@@ -246,11 +246,39 @@ function commandSfw(options, session) {
 }
 
 function commandTimer(options, session) {
-  var date = chrono.parseDate(options.parameters);
+  var timerDate = chrono.parseDate(options.parameters);
+
+  console.log('Timer Date: ' + timerDate);
+
+  if (timerDate == null) {
+    session.send('Sorry, I did not understand that time description');
+
+    return;
+  }
+
+  var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
+
+  console.log('Timer Moment: ' + timerMoment);
+
+  if (isExpired(timerMoment)) {
+    session.send('Sorry, I cannot set a timer in the past');
+
+    return;
+  }
+
+  schedule.scheduleJob(timerDate, function() {
+    var message =
+      options.firstName + ' ' + options.firstName + ' ' + options.firstName +
+        ' ' + options.firstName + ' ' + options.firstName;
+
+    var message =
+      new builder.Message().address(session.message.address).text(message);
+
+    bot.send(message);
+  });
 
   session.send(
-    'Timer set for: ' +
-      momentjs.tz(date, 'America/Los_Angeles').format('YYYY-MM-DD HH:mm'));
+    'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
 }
 
 function commandTrivia(options, session) {
@@ -495,12 +523,12 @@ function getCommandFunction(options) {
     };
   } else if (command === 'sfw') {
     return commandSfw;
-  } else if (command === 'time' || command === 'timer') {
-    return commandTimer;
   } else if (whitelist && (command === 'event' || command === 'events')) {
     return commandEvents;
   } else if (whitelist && command === 'play') {
     return commandPlay;
+  } else if (whitelist && (command === 'time' || command === 'timer')) {
+    return commandTimer;
   } else if (whitelist && command === 'trivia') {
     return commandTrivia;
   }
@@ -545,8 +573,6 @@ function getMoment(year, month, day, hour, minutes, seconds) {
         hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
           minutes.toString().replace(/^[0-9]$/, '0$&') + ':' +
             seconds.toString().replace(/^[0-9]$/, '0$&');
-
-  console.log(dateString);
 
   var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
 
@@ -620,6 +646,16 @@ function giphyTranslate(searchTerm, callback) {
       callback(exception, null);
     }
   });
+}
+
+function isExpired(moment) {
+  var currentMoment = getCurrentMoment();
+
+  if (moment > currentMoment) {
+    return false;
+  }
+
+  return true;
 }
 
 function isHappyHour(moment) {
@@ -719,7 +755,7 @@ function postGif(searchTerm, session, callback) {
     if (url == null) {
       console.log(error);
 
-      session.send('Sorry, I couldn\'t find a gif for: ' + searchTerm);
+      session.send('Sorry, I could not find a gif for: ' + searchTerm);
     } else {
       session.send(filterGif(url));
     }
@@ -755,7 +791,7 @@ server.post('/api/messages', connector.listen());
 
 var date = new Date(getMoment(2017, 3, 17, 15, 0, 0).valueOf());
 
-console.log(date);
+console.log('UTC Happy Hour: ' + date);
 
 var scheduleString =
   date.getMinutes() + ' ' + date.getHours() + ' * * ' + date.getDay();
