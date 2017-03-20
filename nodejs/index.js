@@ -538,12 +538,13 @@ function getEvent(eventName, callback) {
   });
 }
 
-function getMoment(year, month, day, hour, minutes) {
+function getMoment(year, month, day, hour, minutes, seconds) {
   var dateString =
     year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
       day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
         hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
-          minutes.toString().replace(/^[0-9]$/, '0$&');
+          minutes.toString().replace(/^[0-9]$/, '0$&') + ':' +
+            seconds.toString().replace(/^[0-9]$/, '0$&');
 
   console.log(dateString);
 
@@ -752,7 +753,7 @@ server.post('/api/messages', connector.listen());
 // Schedule happy hour
 //
 
-var date = new Date(getMoment(2017, 3, 17, 15, 0).valueOf());
+var date = new Date(getMoment(2017, 3, 17, 15, 0, 0).valueOf());
 
 console.log(date);
 
