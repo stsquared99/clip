@@ -245,13 +245,45 @@ function commandSfw(options, session) {
   postGif('puppies', session);
 }
 
-function commandTimer(options, session) {
+function timerCancel(options, result, session) {
+  if (!result) {
+    session.send('You currently do not have a timer scheduled');
+
+    return;
+  }
+
+  data.delete('timer/' + options.firstName).then(function(response) {
+    console.log(response);
+
+    session.send('Your timer has been cancelled');
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session,
+      'Oops, I had trouble cancelling your timer. Please try again later');
+  });
+}
+
+function timerCreate(options, result, session) {
+  if (result) {
+    var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
+
+    session.send(
+      'You already have a timer scheduled for: ' +
+        timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+
+    return;
+  }
+
   var timerDate = chrono.parseDate(options.parameters);
 
   console.log('Timer Date: ' + timerDate);
 
   if (timerDate == null) {
-    session.send('Sorry, I did not understand that time description');
+    session.send(
+      'Sorry, I did not understand that. Please better describe when I ' +
+        'should set the timer for.');
 
     return;
   }
@@ -260,25 +292,76 @@ function commandTimer(options, session) {
 
   console.log('Timer Moment: ' + timerMoment);
 
-  if (isExpired(timerMoment)) {
+  if (isExpiredMoment(timerMoment)) {
     session.send('Sorry, I cannot set a timer in the past');
 
     return;
   }
 
-  schedule.scheduleJob(timerDate, function() {
-    var message =
-      options.firstName + ' ' + options.firstName + ' ' + options.firstName +
-        ' ' + options.firstName + ' ' + options.firstName;
+  var message =
+    options.firstName + ' ' + options.firstName + ' ' + options.firstName +
+      ' ' + options.firstName + ' ' + options.firstName + ' ' +
+        options.firstName + ' ' + options.firstName + ' ' + options.firstName;
+          ' ' + options.firstName + ' ' + options.firstName;
 
-    var message =
-      new builder.Message().address(session.message.address).text(message);
+  var timer = {
+    'address': session.message.address,
+    'date': timerDate,
+    'id': options.firstName,
+    'message': message,
+  };
 
-    bot.send(message);
-  });
+  var timerSchedule = scheduleMessage(timer);
+
+  timer.schedule = timerSchedule;
+
+  data.create('timer', timer).then(function(response) {
+  console.log(response);
 
   session.send(
     'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+  }).catch(function(error) {
+    console.error(error);
+
+    timerSchedule.cancel();
+
+  postError(
+    session,
+    'Oops, I had trouble saving your timer. ' +
+    'Please try again later');
+  });
+}
+
+function timerShow(options, result, session) {
+  if (!result) {
+    session.send('You currently do not have a timer scheduled');
+
+    return;
+  }
+
+  var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
+
+  session.send(
+    'You have a timer scheduled for: ' +
+      timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+}
+
+function commandTimer(options, session) {
+  validateTimer(options.firstName, function(error, result) {
+    if (error) {
+      session.send(
+        'Oops, I had trouble checking for stale timers. ' +
+          'Please try again later');
+    } else if (!options.parameters) {
+      timerShow(options, result, session);
+    } else if (
+        options.parameters === 'cancel' || options.parameters === 'delete' ||
+        options.parameters === 'remove' || options.parameters === 'stop') {
+      timerCancel(options, result, session);
+    } else {
+      timerCreate(options, result, session);
+    }
+  });
 }
 
 function commandTrivia(options, session) {
@@ -648,7 +731,18 @@ function giphyTranslate(searchTerm, callback) {
   });
 }
 
-function isExpired(moment) {
+function isExpiredDate(date) {
+  var currentMoment = getCurrentMoment();
+  var moment = momentjs.tz(date, 'America/Los_Angeles');
+
+  if (moment > currentMoment) {
+    return false;
+  }
+
+  return true;
+}
+
+function isExpiredMoment(moment) {
   var currentMoment = getCurrentMoment();
 
   if (moment > currentMoment) {
@@ -763,6 +857,42 @@ function postGif(searchTerm, session, callback) {
     if (callback) {
       callback();
     }
+  });
+}
+
+function scheduleMessage(timer) {
+  return schedule.scheduleJob(timer.date, function() {
+    var message =
+      new builder.Message().address(timer.address).text(timer.message);
+
+    bot.send(message);
+  });
+}
+
+function validateTimer(name, callback) {
+  data
+  .where('id', '=', name)
+  .get('timer')
+  .then(function(results) {
+    if (results[0] && isExpiredDate(results[0].date)) {
+      console.log('Clearing expired timer');
+
+      data.delete('timer/' + name).then(function(response) {
+        callback(null, null);
+      }).catch(function(error) {
+        console.error(error);
+
+        callback(error, null);
+      });
+    } else if (results[0]) {
+      callback(null, results[0]);
+    } else {
+      callback(null, null);
+    }
+  }).catch(function(error) {
+    console.error(error);
+
+    callback(error, null);
   });
 }
 
