@@ -251,9 +251,13 @@ function timerCancel(options, result, session) {
     return;
   }
 
-  data.delete('timer/' + options.firstName).then(function(response) {
-    console.log(response);
+  var job = schedule.scheduledJobs[result.name];
 
+  if (job != null) {
+    job.cancel();
+  }
+
+  data.delete('timer/' + options.firstName).then(function() {
     session.send('Your timer has been cancelled');
   }).catch(function(error) {
     console.error(error);
@@ -303,26 +307,27 @@ function timerCreate(options, result, session) {
         options.firstName + ' ' + options.firstName + ' ' + options.firstName;
           ' ' + options.firstName + ' ' + options.firstName;
 
+  var name = (new Date).getTime().toString() + '-' + Math.random().toString();
+
   var timer = {
     'address': session.message.address,
     'date': timerDate,
     'id': options.firstName,
     'message': message,
+    'name': name
   };
 
-  var timerSchedule = scheduleMessage(timer);
-
-  timer.schedule = timerSchedule;
+  scheduleMessage(timer);
 
   data.create('timer', timer).then(function(response) {
-  console.log(response);
+    console.log(response);
 
-  session.send(
-    'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+    session.send(
+      'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
   }).catch(function(error) {
     console.error(error);
 
-    timerSchedule.cancel();
+    job.cancel();
 
   postError(
     session,
@@ -442,9 +447,7 @@ function eventNo(options, session) {
   .get(eventPath)
   .then(function(results) {
     if (results[0]) {
-      data.delete(userPath).then(function(response) {
-        console.log(response);
-
+      data.delete(userPath).then(function() {
         eventList(options, session);
       }).catch(function(error) {
         console.error(error);
@@ -864,7 +867,7 @@ function postGif(searchTerm, session, callback) {
 }
 
 function scheduleMessage(timer) {
-  return schedule.scheduleJob(timer.date, function() {
+  schedule.scheduleJob(timer.name, timer.date, function() {
     var message =
       new builder.Message().address(timer.address).text(timer.message);
 
@@ -880,7 +883,7 @@ function validateTimer(name, callback) {
     if (results[0] && isExpiredDate(results[0].date)) {
       console.log('Clearing expired timer');
 
-      data.delete('timer/' + name).then(function(response) {
+      data.delete('timer/' + name).then(function() {
         callback(null, null);
       }).catch(function(error) {
         console.error(error);
