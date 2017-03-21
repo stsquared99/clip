@@ -289,7 +289,7 @@ function timerCreate(options, result, session) {
 
   var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
 
-  console.log('Timer Moment: ' + timerMoment);
+  console.log('Timer Moment: ' + timerMoment.format());
 
   if (isExpiredMoment(timerMoment)) {
     session.send('Sorry, I cannot set a timer in the past');
