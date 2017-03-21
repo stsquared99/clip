@@ -606,6 +606,10 @@ function getCommandFunction(options) {
     };
   } else if (command === 'sfw') {
     return commandSfw;
+  } else if (command === 'testtest') {
+    return function(options, session) {
+      console.log(session.message.address);
+    };
   } else if (whitelist && (command === 'event' || command === 'events')) {
     return commandEvents;
   } else if (whitelist && command === 'play') {
