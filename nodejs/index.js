@@ -925,6 +925,8 @@ server.post('/api/messages', connector.listen());
 // Schedule happy hour
 //
 
+console.log('Scheduling Happy Hour...');
+
 var date = new Date(getMoment(2017, 3, 17, 15, 0, 0).valueOf());
 
 console.log('UTC Happy Hour: ' + date);
@@ -968,6 +970,29 @@ schedule.scheduleJob(scheduleString, function() {
     new builder.Message().address(happyHourAddress).text(happyHourMessage);
 
   bot.send(message);
+});
+
+//
+// Restore saved timers.
+//
+
+console.log('Restoring scheduled timers...');
+
+data
+.limit(100)
+.get('timer')
+.then(function(results) {
+  var i = results.length;
+
+  while (i--) {
+    if (!isExpiredDate(results[i].date)) {
+      scheduleMessage(results[i]);
+    }
+  }
+}).catch(function(error) {
+  console.error(error);
+
+  console.log('Failed to restore scheduled timers');
 });
 
 // =========================================================
