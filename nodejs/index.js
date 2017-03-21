@@ -174,7 +174,6 @@ function commandHelp(options, session) {
 
 function commandInvalid(options, session) {
   var invalidResponses = [
-    'Help I\'m trapped in a paperclip factory',
     'It looks like you suck at spelling. Do you need help?',
     'It looks like you\'re trying to build master. ' +
       'Do you need an intervention?',
