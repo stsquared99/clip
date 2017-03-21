@@ -314,7 +314,7 @@ function timerCreate(options, result, session) {
     'date': timerDate,
     'id': options.firstName,
     'message': message,
-    'name': name
+    'name': name,
   };
 
   scheduleMessage(timer);
