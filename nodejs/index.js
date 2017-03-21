@@ -986,6 +986,8 @@ data
 
   while (i--) {
     if (!isExpiredDate(results[i].date)) {
+      console.log(results[i]);
+
       scheduleMessage(results[i]);
     }
   }
