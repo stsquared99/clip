@@ -735,10 +735,10 @@ function giphyTranslate(searchTerm, callback) {
 }
 
 function isExpiredDate(date) {
-  var currentMoment = getCurrentMoment();
+  var current = momentjs().tz('America/Los_Angeles').format();
   var moment = momentjs.tz(date, 'America/Los_Angeles');
 
-  if (moment > currentMoment) {
+  if (moment > current) {
     return false;
   }
 
@@ -746,9 +746,9 @@ function isExpiredDate(date) {
 }
 
 function isExpiredMoment(moment) {
-  var currentMoment = getCurrentMoment();
+  var current = momentjs().tz('America/Los_Angeles').format();
 
-  if (moment > currentMoment) {
+  if (moment > current) {
     return false;
   }
 
