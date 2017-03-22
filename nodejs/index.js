@@ -321,9 +321,7 @@ function timerCreate(options, result, session) {
     return;
   }
 
-  var message =
-    '(alarm) ' + options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '') +
-      ' (alarm)';
+  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
 
   console.log('Timer message: ' + message);
 
@@ -337,7 +335,7 @@ function timerCreate(options, result, session) {
     'name': name,
   };
 
-  scheduleMessage(timer);
+  scheduleTimer(timer);
 
   data.create('timer', timer).then(function(response) {
     console.log(response);
@@ -366,7 +364,7 @@ function timerShow(options, result, session) {
   var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
 
   session.send(
-    'You have a timer scheduled for: ' +
+    '"' + result.message + '" scheduled for: ' +
       timerMoment.format('YYYY-MM-DD HH:mm:ss'));
 }
 
@@ -894,10 +892,11 @@ function postGif(searchTerm, session, callback) {
   });
 }
 
-function scheduleMessage(timer) {
+function scheduleTimer(timer) {
   schedule.scheduleJob(timer.name, timer.date, function() {
     var message =
-      new builder.Message().address(timer.address).text(timer.message);
+      new builder.Message().address(timer.address).text(
+        '(alarm) ' + timer.message + ' (alarm)');
 
     bot.send(message);
   });
@@ -1016,7 +1015,7 @@ data
     if (!isExpiredDate(results[i].date)) {
       console.log(results[i]);
 
-      scheduleMessage(results[i]);
+      scheduleTimer(results[i]);
     }
   }
 }).catch(function(error) {
