@@ -279,9 +279,14 @@ function timerCreate(options, result, session) {
     return;
   }
 
+  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
+
   var split = options.parameters.split('"');
 
-  if (split.length < 3) {
+  if (split.length === 1) {
+    message =
+      options.firstName + ' ' + options.firstName + ' ' + options.firstName;
+  } else if (split.length < 3) {
     session.send(
       'Sorry, did you forget specify a timer message in double quotes?<br/>' +
         'e.g. clippy timer in 30 seconds "Hello World"');
@@ -295,13 +300,13 @@ function timerCreate(options, result, session) {
     return;
   }
 
+  console.log('Timer message: ' + message);
+
   var timeDescription = options.parameters.replace(/".*"/, '');
 
   console.log('Timer description: ' + timeDescription);
 
   var timerDate = chrono.parseDate(timeDescription);
-
-  console.log('Timer Date: ' + timerDate);
 
   if (timerDate == null) {
     session.send(
@@ -310,6 +315,19 @@ function timerCreate(options, result, session) {
 
     return;
   }
+  if (!isCorrectTimezone(timerDate)) {
+    var timerDateOffset =
+      chrono.parseDate(timeDescription + ' GMT' + getTimezoneOffset());
+
+    if (timerDate != timerDateOffset) {
+      console.log(
+        'Adjusting timer date from ' + timerDate + ' to ' + timerDateOffset);
+
+      timerDate = timerDateOffset;
+    }
+  }
+
+  console.log('Timer Date: ' + timerDate);
 
   var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
 
@@ -320,10 +338,6 @@ function timerCreate(options, result, session) {
 
     return;
   }
-
-  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
-
-  console.log('Timer message: ' + message);
 
   var name = (new Date).getTime().toString() + '-' + Math.random().toString();
 
@@ -711,6 +725,14 @@ function getNextHappyHour() {
   return moment;
 }
 
+function getTimezoneOffset() {
+  var offset = momentjs().tz('America/Los_Angeles').utcOffset() / 60;
+
+  console.log('Timezone offset: ' + offset);
+
+  return offset;
+}
+
 function getToday() {
   var today = momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
 
@@ -755,6 +777,16 @@ function giphyTranslate(searchTerm, callback) {
       callback(exception, null);
     }
   });
+}
+
+function isCorrectTimezone(date) {
+  offset = date.getTimezoneOffset() * -1;
+
+  if (offset === momentjs().tz('America/Los_Angeles').utcOffset()) {
+    return true;
+  }
+
+  return false;
 }
 
 function isExpiredDate(date) {
