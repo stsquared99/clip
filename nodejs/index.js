@@ -154,14 +154,22 @@ function commandGif(options, session) {
 function commandHelp(options, session) {
   var helpResponse =
     'Hi! I am Clippy, your office assistant. Would you like some ' +
-      'assistance today?<br/>---<br/>clippy beer<br/>clippy gif ' +
-        '{search term}<br/>clippy sfw';
+    'assistance today?<br/>---<br/>' +
+    'clippy beer<br/>' +
+    'clippy gif {search term}<br/>' +
+    'clippy sfw';
 
   var whitelistResponse =
-    '<br/>---<br/>clippy event<br/>: List today\'s events<br/>' +
-      'clippy event {event name}<br/>: Add a new event<br/>' +
-        'clippy {event name}<br/>clippy {event name} {yes|no}<br/>' +
-          'clippy play trivia<br/>clippy trivia<br/>: Show trivia stats';
+    '<br/>---<br/>' +
+    'clippy event<br/>' +
+    ': List today\'s events<br/>' +
+    'clippy event {event name}<br/>' +
+    ': Add a new event<br/>' +
+    'clippy {event name}<br/>' +
+    'clippy {event name} {yes|no}<br/>' +
+    'clippy play trivia<br/>' +
+    'clippy trivia<br/>' +
+    ': Show trivia stats';
 
   if (options.whitelist) {
     session.send(helpResponse + whitelistResponse);
