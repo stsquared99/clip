@@ -588,7 +588,10 @@ function getNextHappyHour() {
 }
 
 function getTimezoneOffset() {
-  var offset = momentjs().tz('America/Los_Angeles').utcOffset() / 60;
+  var offset =
+    (momentjs().tz('America/Los_Angeles').utcOffset() / 60)
+    .replace(/$/, '00')
+    .replace(/^[0-9]{3}$/, '0&');
 
   console.log('Timezone offset: ' + offset);
 
