@@ -321,7 +321,9 @@ function timerCreate(options, result, session) {
     return;
   }
 
-  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
+  var message =
+    '(alarm) ' + options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '') +
+      ' (alarm)';
 
   console.log('Timer message: ' + message);
 
