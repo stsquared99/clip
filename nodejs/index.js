@@ -704,7 +704,7 @@ function isValidTriviaAnswer(string) {
 function parseOptions(session) {
   var text = session.message.text;
 
-  var message = text.replace(/ *$/, '');
+  var message = text.replace(/&quot;/g, '"').replace(/ *$/, '');
 
   console.log('message: ', message);
 
@@ -802,7 +802,7 @@ function scheduleTimer(timer) {
   schedule.scheduleJob(timer.name, timer.date, function() {
     var message =
       new builder.Message().address(timer.address).text(
-        '(alarm) ' + timer.message + ' (alarm)');
+        '(bell) ' + timer.message + ' (bell)');
 
     bot.send(message);
   });
@@ -868,7 +868,7 @@ function timerCreate(options, result, session) {
 
   var timeDescription = options.parameters.replace(/".*"/, '');
 
-  console.log('Timer description: ' + timeDescription);
+  console.log('Time description: ' + timeDescription);
 
   var timerDate = chrono.parseDate(timeDescription);
 
