@@ -101,9 +101,9 @@ function commandDie(options, session) {
 }
 
 function commandEvent(options, session) {
-  if (options.parameters === 'no') {
+  if (options.parametersLower === 'no') {
     eventNo(options, session);
-  } else if (options.parameters === 'yes') {
+  } else if (options.parametersLower === 'yes') {
     eventYes(options, session);
   } else {
     eventList(options, session);
@@ -111,10 +111,10 @@ function commandEvent(options, session) {
 }
 
 function commandEvents(options, session) {
-  if (!options.parameters || options.parameters === 'list') {
+  if (!options.parametersLower || options.parametersLower === 'list') {
     eventsList(options, session);
   } else {
-    var eventName = options.parameters.replace(/[^a-zA-Z0-9_\-@]/g, '');
+    var eventName = options.parametersLower.replace(/[^a-zA-Z0-9_\-@]/g, '');
 
     if (getCommandFunction({'command': eventName, 'whitelist': true})) {
       session.send('Sorry, \'' + eventName + '\' is a taken as a command name');
@@ -139,7 +139,7 @@ function commandEvents(options, session) {
 }
 
 function commandGif(options, session) {
-  var searchTerm = options.parameters;
+  var searchTerm = options.parametersLower;
 
   if (searchTerm.length === 0) {
     session.send(
@@ -191,7 +191,7 @@ function commandInvalid(options, session) {
 }
 
 function commandPlay(options, session) {
-  if (options.parameters === 'trivia') {
+  if (options.parametersLower === 'trivia') {
     data
     .where('id', '=', options.firstName)
     .get('trivia')
@@ -279,7 +279,27 @@ function timerCreate(options, result, session) {
     return;
   }
 
-  var timerDate = chrono.parseDate(options.parameters);
+  var split = options.parameters.split('"');
+
+  if (split.length < 3) {
+    session.send(
+      'Sorry, did you forget specify a timer message in double quotes?<br/>' +
+        'e.g. clippy timer in 30 seconds "Hello World"');
+
+    return;
+  } else if (split.length > 3) {
+    session.send(
+      'Sorry, did you use too many double quotes?<br/>' +
+        'e.g. clippy timer in 30 seconds "Hello World"');
+
+    return;
+  }
+
+  var timeDescription = options.parameters.replace(/".*"/, '');
+
+  console.log('Timer description: ' + timeDescription);
+
+  var timerDate = chrono.parseDate(timeDescription);
 
   console.log('Timer Date: ' + timerDate);
 
@@ -301,11 +321,9 @@ function timerCreate(options, result, session) {
     return;
   }
 
-  var message =
-    options.firstName + ' ' + options.firstName + ' ' + options.firstName +
-      ' ' + options.firstName + ' ' + options.firstName + ' ' +
-        options.firstName + ' ' + options.firstName + ' ' + options.firstName;
-          ' ' + options.firstName + ' ' + options.firstName;
+  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
+
+  console.log('Timer message: ' + message);
 
   var name = (new Date).getTime().toString() + '-' + Math.random().toString();
 
@@ -356,11 +374,13 @@ function commandTimer(options, session) {
       session.send(
         'Oops, I had trouble checking for stale timers. ' +
           'Please try again later');
-    } else if (!options.parameters) {
+    } else if (!options.parametersLower) {
       timerShow(options, result, session);
     } else if (
-        options.parameters === 'cancel' || options.parameters === 'delete' ||
-        options.parameters === 'remove' || options.parameters === 'stop') {
+        options.parametersLower === 'cancel' ||
+        options.parametersLower === 'delete' ||
+        options.parametersLower === 'remove' ||
+        options.parametersLower === 'stop') {
       timerCancel(options, result, session);
     } else {
       timerCreate(options, result, session);
@@ -369,7 +389,7 @@ function commandTimer(options, session) {
 }
 
 function commandTrivia(options, session) {
-  if (options.parameters === 'play') {
+  if (options.parametersLower === 'play') {
     session.send('Did you mean \'play trivia\'?');
 
     return;
@@ -574,7 +594,7 @@ function filterGif(url) {
 
 function getCommandFunction(options) {
   var command = options.command;
-  var message = options.message;
+  var message = options.messageLower;
   var whitelist = options.whitelist;
 
   if (command === 'beer') {
@@ -778,13 +798,15 @@ function isValidTriviaAnswer(string) {
 function parseOptions(session) {
   var text = session.message.text;
 
-  var message = text.toLowerCase().replace(/ *$/, '');
+  var message = text.replace(/ *$/, '');
 
   console.log('message: ', message);
 
+  var messageLower = message.toLowerCase();
+
   var messageWithoutMention = message.replace(/^.*?>.*?>[^a-z]*/, '');
 
-  var command = messageWithoutMention.replace(/ +.*/, '');
+  var command = messageWithoutMention.replace(/ +.*/, '').toLowerCase();
 
   console.log('command: ', command);
 
@@ -792,6 +814,8 @@ function parseOptions(session) {
     messageWithoutMention.replace(/[^ ]+ */, '').replace(/ *$/, '');
 
   console.log('parameters: ', parameters);
+
+  var parametersLower = parameters.toLowerCase();
 
   var userId = session.message.user.id;
 
@@ -832,6 +856,8 @@ function parseOptions(session) {
     conversationId: conversationId,
     firstName: firstName,
     message: message,
+    messageLower: messageLower,
+    parametersLower: parametersLower,
     parameters: parameters,
     session: session,
     userName: userName,
@@ -1016,7 +1042,7 @@ bot.dialog('/', function(session) {
           'Oops, I had trouble checking for events. Please try again later.');
       } else if (options.command === result) {
         commandEvent(options, session);
-      } else if (options.parameters === 'yes') {
+      } else if (options.parametersLower === 'yes') {
         if (result) {
           session.send('Did you mean \'' + result + '\'?');
 
