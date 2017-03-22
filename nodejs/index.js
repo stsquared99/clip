@@ -244,144 +244,6 @@ function commandSfw(options, session) {
   postGif('puppies', session);
 }
 
-function timerCancel(options, result, session) {
-  if (!result) {
-    session.send('You currently do not have a timer scheduled');
-
-    return;
-  }
-
-  var job = schedule.scheduledJobs[result.name];
-
-  if (job != null) {
-    job.cancel();
-  }
-
-  data.delete('timer/' + options.firstName).then(function() {
-    session.send('Your timer has been cancelled');
-  }).catch(function(error) {
-    console.error(error);
-
-    postError(
-      session,
-      'Oops, I had trouble cancelling your timer. Please try again later');
-  });
-}
-
-function timerCreate(options, result, session) {
-  if (result) {
-    var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
-
-    session.send(
-      'You already have a timer scheduled for: ' +
-        timerMoment.format('YYYY-MM-DD HH:mm:ss'));
-
-    return;
-  }
-
-  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
-
-  var split = options.parameters.split('"');
-
-  if (split.length === 1) {
-    message =
-      options.firstName + ' ' + options.firstName + ' ' + options.firstName;
-  } else if (split.length < 3) {
-    session.send(
-      'Sorry, did you forget specify a timer message in double quotes?<br/>' +
-        'e.g. clippy timer in 30 seconds "Hello World"');
-
-    return;
-  } else if (split.length > 3) {
-    session.send(
-      'Sorry, did you use too many double quotes?<br/>' +
-        'e.g. clippy timer in 30 seconds "Hello World"');
-
-    return;
-  }
-
-  console.log('Timer message: ' + message);
-
-  var timeDescription = options.parameters.replace(/".*"/, '');
-
-  console.log('Timer description: ' + timeDescription);
-
-  var timerDate = chrono.parseDate(timeDescription);
-
-  if (timerDate == null) {
-    session.send(
-      'Sorry, I did not understand that. Please better describe when I ' +
-        'should set the timer for.');
-
-    return;
-  }
-  if (!isCorrectTimezone(timerDate)) {
-    var timerDateOffset =
-      chrono.parseDate(timeDescription + ' GMT' + getTimezoneOffset());
-
-    if (timerDate != timerDateOffset) {
-      console.log(
-        'Adjusting timer date from ' + timerDate + ' to ' + timerDateOffset);
-
-      timerDate = timerDateOffset;
-    }
-  }
-
-  console.log('Timer Date: ' + timerDate);
-
-  var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
-
-  console.log('Timer Moment: ' + timerMoment.format());
-
-  if (isExpiredMoment(timerMoment)) {
-    session.send('Sorry, I cannot set a timer in the past');
-
-    return;
-  }
-
-  var name = (new Date).getTime().toString() + '-' + Math.random().toString();
-
-  var timer = {
-    'address': session.message.address,
-    'date': timerDate,
-    'id': options.firstName,
-    'message': message,
-    'name': name,
-  };
-
-  scheduleTimer(timer);
-
-  data.create('timer', timer).then(function(response) {
-    console.log(response);
-
-    session.send(
-      'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
-  }).catch(function(error) {
-    console.error(error);
-
-    job.cancel();
-
-  postError(
-    session,
-    'Oops, I had trouble saving your timer. ' +
-    'Please try again later');
-  });
-}
-
-function timerShow(options, result, session) {
-  if (!result) {
-    session.send('You currently do not have a timer scheduled');
-
-    return;
-  }
-
-  var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
-
-  session.send(
-    '"' + result.message + '" scheduled for: ' +
-      timerMoment.format('YYYY-MM-DD HH:mm:ss'));
-}
-
 function commandTimer(options, session) {
   validateTimer(options.firstName, function(error, result) {
     if (error) {
@@ -932,6 +794,144 @@ function scheduleTimer(timer) {
 
     bot.send(message);
   });
+}
+
+function timerCancel(options, result, session) {
+  if (!result) {
+    session.send('You currently do not have a timer scheduled');
+
+    return;
+  }
+
+  var job = schedule.scheduledJobs[result.name];
+
+  if (job != null) {
+    job.cancel();
+  }
+
+  data.delete('timer/' + options.firstName).then(function() {
+    session.send('Your timer has been cancelled');
+  }).catch(function(error) {
+    console.error(error);
+
+    postError(
+      session,
+      'Oops, I had trouble cancelling your timer. Please try again later');
+  });
+}
+
+function timerCreate(options, result, session) {
+  if (result) {
+    var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
+
+    session.send(
+      'You already have a timer scheduled for: ' +
+        timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+
+    return;
+  }
+
+  var message = options.parameters.replace(/"[^"]*$/, '').replace(/^.*"/, '');
+
+  var split = options.parameters.split('"');
+
+  if (split.length === 1) {
+    message =
+      options.firstName + ' ' + options.firstName + ' ' + options.firstName;
+  } else if (split.length < 3) {
+    session.send(
+      'Sorry, did you forget specify a timer message in double quotes?<br/>' +
+        'e.g. clippy timer in 30 seconds "Hello World"');
+
+    return;
+  } else if (split.length > 3) {
+    session.send(
+      'Sorry, did you use too many double quotes?<br/>' +
+        'e.g. clippy timer in 30 seconds "Hello World"');
+
+    return;
+  }
+
+  console.log('Timer message: ' + message);
+
+  var timeDescription = options.parameters.replace(/".*"/, '');
+
+  console.log('Timer description: ' + timeDescription);
+
+  var timerDate = chrono.parseDate(timeDescription);
+
+  if (timerDate == null) {
+    session.send(
+      'Sorry, I did not understand that. Please better describe when I ' +
+        'should set the timer for.');
+
+    return;
+  }
+  if (!isCorrectTimezone(timerDate)) {
+    var timerDateOffset =
+      chrono.parseDate(timeDescription + ' GMT' + getTimezoneOffset());
+
+    if (timerDate != timerDateOffset) {
+      console.log(
+        'Adjusting timer date from ' + timerDate + ' to ' + timerDateOffset);
+
+      timerDate = timerDateOffset;
+    }
+  }
+
+  console.log('Timer Date: ' + timerDate);
+
+  var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
+
+  console.log('Timer Moment: ' + timerMoment.format());
+
+  if (isExpiredMoment(timerMoment)) {
+    session.send('Sorry, I cannot set a timer in the past');
+
+    return;
+  }
+
+  var name = (new Date).getTime().toString() + '-' + Math.random().toString();
+
+  var timer = {
+    'address': session.message.address,
+    'date': timerDate,
+    'id': options.firstName,
+    'message': message,
+    'name': name,
+  };
+
+  scheduleTimer(timer);
+
+  data.create('timer', timer).then(function(response) {
+    console.log(response);
+
+    session.send(
+      'Timer set for: ' + timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+  }).catch(function(error) {
+    console.error(error);
+
+    job.cancel();
+
+  postError(
+    session,
+    'Oops, I had trouble saving your timer. ' +
+    'Please try again later');
+  });
+}
+
+function timerShow(options, result, session) {
+  if (!result) {
+    session.send('You currently do not have a timer scheduled');
+
+    return;
+  }
+
+  var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
+
+  session.send(
+    '"' + result.message + '" scheduled for: ' +
+      timerMoment.format('YYYY-MM-DD HH:mm:ss'));
 }
 
 function validateTimer(name, callback) {
