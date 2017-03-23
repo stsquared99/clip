@@ -155,7 +155,7 @@ function commandGif(options, session) {
 function commandHelp(options, session) {
   var helpResponse =
     'Hi! I am Clippy, your office assistant. Would you like some ' +
-    'assistance today?<br/>---<br/>' +
+      'assistance today?<br/>---<br/>' +
     'clippy beer<br/>' +
     'clippy gif {search term}<br/>' +
     'clippy sfw';
@@ -168,6 +168,19 @@ function commandHelp(options, session) {
     ': Add a new event<br/>' +
     'clippy {event name}<br/>' +
     'clippy {event name} {yes|no}<br/>' +
+    'clippy timer<br/>' +
+    ': Show the current timer<br/>' +
+    'clippy timer cancel|stop<br/>' +
+    ': Cancel the current timer<br/>' +
+    'clippy timer {time description}<br/>' +
+    ': Set a timer using natural language, ' +
+      'e.g. timer today at 12:45pm | timer in 10 seconds<br/>' +
+    'clippy timer "{message}" {time description}<br/>' +
+    ': Set a timer with a custom message, ' +
+      'e.g. timer "Albertson\'s run" 12:45pm<br/>' +
+    'clippy timer<br/>' +
+    ': Show the current timer<br/>' +
+    'clippy trivia<br/>' +
     'clippy play trivia<br/>' +
     'clippy trivia<br/>' +
     ': Show trivia stats';
