@@ -1,7 +1,7 @@
 var builder = require('botbuilder');
 var chrono = require('chrono-node');
 var didyoumean = require('didyoumean');
-var entities = require("entities");
+var entities = require('entities');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
 var restify = require('restify');
@@ -65,13 +65,13 @@ function addEvent(eventName, callback) {
 }
 
 function commandBeer(options, session) {
-  if (isHappyHour(getCurrentMoment())) {
+  if (isHappyHour(momentjs())) {
     session.send('(beer) The taps are open! (beer)');
 
     return;
   }
 
-  var diff = momentjs.duration(getNextHappyHour().diff(getCurrentMoment()));
+  var diff = momentjs.duration(getNextHappyHour().diff(momentjs()));
 
   var days = diff.days();
   var hours = diff.hours() % 24;
@@ -530,16 +530,6 @@ function getCommandFunction(options) {
   return null;
 }
 
-function getCurrentMoment() {
-  var momentFormat = momentjs().tz('America/Los_Angeles').format();
-
-  var currentMoment = momentFormat.replace(/-[^-]*$/, '');
-
-  console.log('Current moment: ' + currentMoment);
-
-  return momentjs(currentMoment);
-}
-
 function getEvent(eventName, callback) {
   var today = getToday();
 
@@ -560,23 +550,8 @@ function getEvent(eventName, callback) {
   });
 }
 
-function getMoment(year, month, day, hour, minutes, seconds) {
-  var dateString =
-    year + '-' + month.toString().replace(/^[0-9]$/, '0$&') + '-' +
-      day.toString().replace(/^[0-9]$/, '0$&') + ' ' +
-        hour.toString().replace(/^[0-9]$/, '0$&') + ':' +
-          minutes.toString().replace(/^[0-9]$/, '0$&') + ':' +
-            seconds.toString().replace(/^[0-9]$/, '0$&');
-
-  var moment = momentjs.tz(dateString, 'America/Los_Angeles').format();
-
-  console.log('Moment: ' + moment);
-
-  return momentjs(moment);
-}
-
 function getNextHappyHour() {
-  var moment = getCurrentMoment();
+  var moment = momentjs();
 
   if (moment.day() === 5 && moment.hour() >= 15) {
     moment.add(1, 'days');
@@ -596,20 +571,8 @@ function getNextHappyHour() {
   return moment;
 }
 
-function getTimezoneOffset() {
-  var offset =
-    (momentjs().tz('America/Los_Angeles').utcOffset() / 60)
-    .toString()
-    .replace(/$/, '00')
-    .replace(/^[0-9]{3}$/, '0&');
-
-  console.log('Timezone offset: ' + offset);
-
-  return offset;
-}
-
 function getToday() {
-  var today = momentjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
+  var today = momentjs().format('YYYY-MM-DD');
 
   console.log('Today: ' + today);
 
@@ -654,21 +617,8 @@ function giphyTranslate(searchTerm, callback) {
   });
 }
 
-function isCorrectTimezone(date) {
-  offset = date.getTimezoneOffset() * -1;
-
-  if (offset === momentjs().tz('America/Los_Angeles').utcOffset()) {
-    return true;
-  }
-
-  return false;
-}
-
 function isExpiredDate(date) {
-  var current = momentjs().tz('America/Los_Angeles');
-  var moment = momentjs.tz(date, 'America/Los_Angeles');
-
-  if (moment > current) {
+  if (momentjs(date) > momentjs()) {
     return false;
   }
 
@@ -676,9 +626,7 @@ function isExpiredDate(date) {
 }
 
 function isExpiredMoment(moment) {
-  var current = momentjs().tz('America/Los_Angeles');
-
-  if (moment > current) {
+  if (moment > momentjs()) {
     return false;
   }
 
@@ -835,11 +783,9 @@ function timerCancel(options, result, session) {
 
 function timerCreate(options, result, session) {
   if (result) {
-    var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
-
     session.send(
       'You already have a timer scheduled for: ' +
-        timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+        momentjs(result.date).format('YYYY-MM-DD HH:mm:ss'));
 
     return;
   }
@@ -880,21 +826,10 @@ function timerCreate(options, result, session) {
 
     return;
   }
-  if (!isCorrectTimezone(timerDate)) {
-    var timerDateOffset =
-      chrono.parseDate(timeDescription + ' GMT' + getTimezoneOffset());
-
-    if (timerDate != timerDateOffset) {
-      console.log(
-        'Adjusting timer date from ' + timerDate + ' to ' + timerDateOffset);
-
-      timerDate = timerDateOffset;
-    }
-  }
 
   console.log('Timer Date: ' + timerDate);
 
-  var timerMoment = momentjs.tz(timerDate, 'America/Los_Angeles');
+  var timerMoment = momentjs(timerDate);
 
   console.log('Timer Moment: ' + timerMoment.format());
 
@@ -940,11 +875,9 @@ function timerShow(options, result, session) {
     return;
   }
 
-  var timerMoment = momentjs.tz(result.date, 'America/Los_Angeles');
-
   session.send(
     '"' + result.message + '" scheduled for: ' +
-      timerMoment.format('YYYY-MM-DD HH:mm:ss'));
+      momentjs(result.date).format('YYYY-MM-DD HH:mm:ss'));
 }
 
 function validateTimer(name, callback) {
@@ -1001,14 +934,7 @@ server.post('/api/messages', connector.listen());
 
 console.log('Scheduling Happy Hour...');
 
-var date = new Date(getMoment(2017, 3, 17, 15, 0, 0).valueOf());
-
-console.log('UTC Happy Hour: ' + date);
-
-var scheduleString =
-  date.getMinutes() + ' ' + date.getHours() + ' * * ' + date.getDay();
-
-schedule.scheduleJob(scheduleString, function() {
+schedule.scheduleJob('0 15 * * 5', function() {
   var happyHourAddress = {
     bot: {
       id: '28:e2532843-f1a4-4f89-9896-a885d4d97dc0',
