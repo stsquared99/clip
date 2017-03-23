@@ -485,7 +485,7 @@ function getCommandFunction(options) {
   if (command === 'beer') {
     return commandBeer;
   } else if (
-      command === 'die' || command === 'diaf' || message === 'go away' ||
+      command === 'diaf' || command === 'die' || message === 'go away' ||
       message === 'kill yourself' || message === 'shut up') {
     return commandDie;
   } else if (command === 'duel') {
