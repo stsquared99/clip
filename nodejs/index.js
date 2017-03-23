@@ -658,13 +658,11 @@ function isValidTriviaAnswer(string) {
 }
 
 function parseOptions(session) {
-  var text = session.message.text;
+  var text = entities.decodeHTML(session.message.text.replace(/ *$/, ''));
 
-  var fullMessage = entities.decodeHTML(text.replace(/ *$/, ''));
+  console.log('text: ', text);
 
-  console.log('Full message: ', fullMessage);
-
-  var message = fullMessage.replace(/^.*?>.*?>[^a-z]*/, '');
+  var message = text.replace(/^.*?>.*?>[^a-z]*/, '');
 
   console.log('message: ', message);
 
