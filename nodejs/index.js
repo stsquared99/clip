@@ -660,20 +660,22 @@ function isValidTriviaAnswer(string) {
 function parseOptions(session) {
   var text = session.message.text;
 
-  var message = entities.decodeHTML(text.replace(/ *$/, ''));
+  var fullMessage = entities.decodeHTML(text.replace(/ *$/, ''));
+
+  console.log('Full message: ', fullMessage);
+
+  var message = fullMessage.replace(/^.*?>.*?>[^a-z]*/, '');
 
   console.log('message: ', message);
 
   var messageLower = message.toLowerCase();
 
-  var messageWithoutMention = message.replace(/^.*?>.*?>[^a-z]*/, '');
-
-  var command = messageWithoutMention.replace(/ +.*/, '').toLowerCase();
+  var command = message.replace(/ +.*/, '').toLowerCase();
 
   console.log('command: ', command);
 
   var parameters =
-    messageWithoutMention.replace(/[^ ]+ */, '').replace(/ *$/, '');
+    message.replace(/[^ ]+ */, '').replace(/ *$/, '');
 
   console.log('parameters: ', parameters);
 
