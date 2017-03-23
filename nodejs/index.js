@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 var chrono = require('chrono-node');
 var didyoumean = require('didyoumean');
+var entities = require("entities");
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
 var restify = require('restify');
@@ -704,7 +705,7 @@ function isValidTriviaAnswer(string) {
 function parseOptions(session) {
   var text = session.message.text;
 
-  var message = text.replace(/&quot;/g, '"').replace(/ *$/, '');
+  var message = entities.decodeHTML(text.replace(/ *$/, ''));
 
   console.log('message: ', message);
 
