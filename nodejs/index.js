@@ -977,6 +977,8 @@ function validateTimer(name, callback) {
 // Bot Setup
 // =========================================================
 
+process.env.TZ = 'America/Los_Angeles';
+
 var server = restify.createServer();
 
 server.listen(process.env.port || process.env.PORT || 80, function() {
