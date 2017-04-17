@@ -662,7 +662,7 @@ function parseOptions(session) {
 
   console.log('text: ', text);
 
-  var message = text.replace(/^.*?>.*?>[^a-z]*/, '');
+  var message = text.replace(/^.*?>.*?>[^a-z]*/, '').replace(/@[^ ]* */, '');
 
   console.log('message: ', message);
 
