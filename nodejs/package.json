@@ -20,6 +20,7 @@
     "moment-timezone": "^0.5.11",
     "node-schedule": "^1.2.1",
     "restify": "^4.3.0",
+    "reverse-string": "0.0.6",
     "wedeploy": "^1.4.0"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@ var entities = require('entities');
 var giphy = require('giphy-api')();
 var momentjs = require('moment-timezone');
 var restify = require('restify');
+var reverse = require('reverse-string');
 var schedule = require('node-schedule');
 var wedeploy = require('wedeploy');
 
@@ -139,12 +140,23 @@ function commandEvents(options, session) {
   }
 }
 
+function commandFig(options, session) {
+  var searchTerm = reverse(options.parametersLower);
+
+  if (searchTerm.length === 0) {
+    session.send('\'fig\' requires a search term');
+
+    return;
+  }
+
+  postGif(searchTerm, session);
+}
+
 function commandGif(options, session) {
   var searchTerm = options.parametersLower;
 
   if (searchTerm.length === 0) {
-    session.send(
-      '\'gif\' requires a search term' + searchTerm);
+    session.send('\'gif\' requires a search term');
 
     return;
   }
@@ -157,6 +169,7 @@ function commandHelp(options, session) {
     'Hi! I am Clippy, your office assistant. Would you like some ' +
       'assistance today?<br/>---<br/>' +
     '**clippy beer**<br/>' +
+    '**clippy fig {search term}**<br/>' +
     '**clippy gif {search term}**<br/>' +
     '**clippy sfw**';
 
@@ -499,6 +512,12 @@ function getCommandFunction(options) {
     return function(options, session) {
       session.send('Did you mean \'pod duel\'?');
     };
+  } else if (command === 'fig') {
+    return commandFig;
+  } else if (command === 'gif') {
+    return commandGif;
+  } else if (command === 'help') {
+    return commandHelp;
   } else if (
       command === 'james' || message === 'genuine thrilla' ||
       message === 'masta killa') {
@@ -506,10 +525,6 @@ function getCommandFunction(options) {
       session.send(
         'https://twitter.com/griffinmcelroy/status/677966778417283072');
     };
-  } else if (command === 'gif') {
-    return commandGif;
-  } else if (command === 'help') {
-    return commandHelp;
   } else if (command === 'lotto') {
     return function(options, session) {
       session.send('Did you mean \'pod lotto\'?');
