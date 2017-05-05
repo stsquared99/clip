@@ -119,7 +119,7 @@ function commandEvents(options, session) {
     var eventName = options.parametersLower.replace(/[^a-zA-Z0-9_\-@]/g, '');
 
     if (getCommandFunction({'command': eventName, 'whitelist': true})) {
-      session.send('Sorry, \'' + eventName + '\' is a taken as a command name');
+      session.send('Sorry, \'' + eventName + '\' is taken as a command name');
 
       return;
     }
