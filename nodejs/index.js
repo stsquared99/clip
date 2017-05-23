@@ -267,12 +267,6 @@ function commandPlay(options, session) {
   session.send('Did you mean \'play trivia\'?');
 }
 
-function commandSfw(options, session) {
-  postGif('puppies', session);
-  postGif('puppies', session);
-  postGif('puppies', session);
-}
-
 function commandTimer(options, session) {
   validateTimer(options.firstName, function(error, result) {
     if (error) {
@@ -529,15 +523,21 @@ function getCommandFunction(options) {
     return function(options, session) {
       session.send('Did you mean \'pod lotto\'?');
     };
+  } else if (
+      command === 'no' || command === 'nope' || command === 'puppies' ||
+      command === 'puppy' || command === 'yes') {
+    return function (options, session) {
+      postGif(command, session);
+    };
   } else if (command === 'points') {
     return function(options, session) {
       session.send('Did you mean \'pod points\'?');
     };
   } else if (command === 'sfw') {
-    return commandSfw;
-  } else if (command === 'testtest') {
-    return function(options, session) {
-      console.log(session.message.address);
+    return function (options, session) {
+      postGif('puppies', session);
+      postGif('puppies', session);
+      postGif('puppies', session);
     };
   } else if (whitelist && (command === 'event' || command === 'events')) {
     return commandEvents;
