@@ -1,7 +1,3 @@
 {
-	"hooks": {
-		"build": "npm install"
-	},
-	"id": "nodejs",
-	"image": "wedeploy/nodejs:beta"
+	"id": "nodejs"
 }
