@@ -1,5 +1,5 @@
 {
-  "name": "clippy",
+  "name": "clip",
   "version": "1.0.0",
   "description": "Your office assistant",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Samuel Tran <sln.t.tran@gmail.com> (https://github.com/stsquared99)",
-  "repository": "stsquared99/clippy",
+  "repository": "stsquared99/clip",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^3.5.4",

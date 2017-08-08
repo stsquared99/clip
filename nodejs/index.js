@@ -168,28 +168,28 @@ function commandHelp(options, session) {
   var helpResponse =
     'Hi! I am Clippy, your office assistant. Would you like some ' +
       'assistance today?<br/>---<br/>' +
-    '**clippy beer**<br/>' +
-    '**clippy fig {search term}**<br/>' +
-    '**clippy gif {search term}**<br/>' +
-    '**clippy sfw**';
+    '**clip beer**<br/>' +
+    '**clip fig {search term}**<br/>' +
+    '**clip gif {search term}**<br/>' +
+    '**clip sfw**';
 
   var whitelistResponse =
     '<br/>---<br/>' +
-    '**clippy events**<br/>' +
+    '**clip events**<br/>' +
     ': List today\'s events<br/>' +
-    '**clippy events {event name}**<br/>' +
+    '**clip events {event name}**<br/>' +
     ': Add a new event<br/>' +
-    '**clippy {event name} [yes|no]**<br/>' +
-    '**clippy timer**<br/>' +
-    '**clippy timer cancel|stop**<br/>' +
-    '**clippy timer {time description}**<br/>' +
+    '**clip {event name} [yes|no]**<br/>' +
+    '**clip timer**<br/>' +
+    '**clip timer cancel|stop**<br/>' +
+    '**clip timer {time description}**<br/>' +
     ': Set a timer using natural language, ' +
       'e.g. timer today at 12:45pm | timer in 10 seconds<br/>' +
-    '**clippy timer "{message}" {time description}**<br/>' +
+    '**clip timer "{message}" {time description}**<br/>' +
     ': Set a timer with a custom message, ' +
       'e.g. timer "Albertson\'s run" 12:45pm<br/>' +
-    '**clippy play trivia**<br/>' +
-    '**clippy trivia**<br/>' +
+    '**clip play trivia**<br/>' +
+    '**clip trivia**<br/>' +
     ': Show trivia stats';
 
   if (options.whitelist) {
@@ -822,13 +822,13 @@ function timerCreate(options, result, session) {
   } else if (split.length < 3) {
     session.send(
       'Sorry, did you forget specify a timer message in double quotes?<br/>' +
-        'e.g. clippy timer in 30 seconds "Hello World"');
+        'e.g. clip timer in 30 seconds "Hello World"');
 
     return;
   } else if (split.length > 3) {
     session.send(
       'Sorry, did you use too many double quotes?<br/>' +
-        'e.g. clippy timer in 30 seconds "Hello World"');
+        'e.g. clip timer in 30 seconds "Hello World"');
 
     return;
   }
@@ -960,7 +960,7 @@ schedule.scheduleJob('0 15 * * 5', function() {
   var happyHourAddress = {
     bot: {
       id: '28:e2532843-f1a4-4f89-9896-a885d4d97dc0',
-      name: 'clippy',
+      name: 'clip',
     },
     channelId: 'skype',
     conversation: {
