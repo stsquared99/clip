@@ -998,26 +998,26 @@ schedule.scheduleJob('0 15 * * 5', function() {
 // Restore saved timers.
 //
 
-// console.log('Restoring scheduled timers...');
-//
-// data
-// .limit(100)
-// .get('timer')
-// .then(function(results) {
-//   var i = results.length;
-//
-//   while (i--) {
-//     if (!isExpiredDate(results[i].date)) {
-//       console.log(results[i]);
-//
-//       scheduleTimer(results[i]);
-//     }
-//   }
-// }).catch(function(error) {
-//   console.error(error);
-//
-//   console.log('Failed to restore scheduled timers');
-// });
+console.log('Restoring scheduled timers...');
+
+data
+.limit(100)
+.get('timer')
+.then(function(results) {
+  var i = results.length;
+
+  while (i--) {
+    if (!isExpiredDate(results[i].date)) {
+      console.log(results[i]);
+
+      scheduleTimer(results[i]);
+    }
+  }
+}).catch(function(error) {
+  console.error(error);
+
+  console.log('Failed to restore scheduled timers');
+});
 
 // =========================================================
 // Bots Dialogs
