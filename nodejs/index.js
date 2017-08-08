@@ -166,8 +166,8 @@ function commandGif(options, session) {
 
 function commandHelp(options, session) {
   var helpResponse =
-    'Hi! I am Clippy, your office assistant. Would you like some ' +
-      'assistance today?<br/>---<br/>' +
+    'Hi! I am Clip, your non-intellectual-property-infringing office ' +
+      'assistant. Would you like some assistance today?<br/>---<br/>' +
     '**clip beer**<br/>' +
     '**clip fig {search term}**<br/>' +
     '**clip gif {search term}**<br/>' +
