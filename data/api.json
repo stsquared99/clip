@@ -1,11 +1,6 @@
 [
     {
-        "path": "/events"
-    },
-    {
-        "path": "/timer"
-    },
-    {
-        "path": "/trivia"
+        "path": "/*",
+        "data": true
     }
 ]
