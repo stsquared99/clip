@@ -715,7 +715,7 @@ function parseOptions(session) {
   console.log('conversationId: ', conversationId);
 
   var conversationWhitelist = [
-    '19:a5173617d9aa49feab082b3672219983@thread.skype',
+    '19:590fb68443b04300a81252cd86dee9ec@thread.skype',
     '19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype',
   ];
 
