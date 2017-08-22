@@ -508,6 +508,12 @@ function getCommandFunction(options) {
     };
   } else if (command === 'fig') {
     return commandFig;
+  } else if (
+      message === 'gd' || message === 'god dam' || message === 'god damn' ||
+      message === 'goddam' || message === 'goddamn') {
+    return function(options, session) {
+      session.send('https://media.giphy.com/media/VnG2IuHsfdSmc/giphy.gif');
+    }
   } else if (command === 'gif') {
     return commandGif;
   } else if (command === 'help') {
