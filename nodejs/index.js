@@ -103,9 +103,9 @@ function commandDie(options, session) {
 }
 
 function commandEvent(options, session) {
-  if (options.parametersLower === 'no') {
+  if (options.parametersLower === 'nein' || options.parametersLower === 'no') {
     eventNo(options, session);
-  } else if (options.parametersLower === 'yes') {
+  } else if (options.parametersLower === 'ja' || options.parametersLower === 'yes') {
     eventYes(options, session);
   } else {
     eventList(options, session);
@@ -1044,7 +1044,7 @@ bot.dialog('/', function(session) {
           'Oops, I had trouble checking for events. Please try again later.');
       } else if (options.command === result) {
         commandEvent(options, session);
-      } else if (options.parametersLower === 'yes') {
+      } else if (options.parametersLower === 'ja' || options.parametersLower === 'yes') {
         if (result) {
           session.send('Did you mean \'' + result + '\'?');
 
