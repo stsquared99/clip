@@ -529,6 +529,10 @@ function getCommandFunction(options) {
     return function(options, session) {
       session.send('Did you mean \'pod lotto\'?');
     };
+  } else if (command === 'monday' || command === 'mondays') {
+    return function(options, session) {
+      session.send('https://youtu.be/2AB9zPfXqQQ?t=9');
+    };
   } else if (
       command === 'no' || command === 'nope' || command === 'puppies' ||
       command === 'puppy' || command === 'yes') {
@@ -544,6 +548,10 @@ function getCommandFunction(options) {
       postGif('puppies', session);
       postGif('puppies', session);
       postGif('puppies', session);
+    };
+  } else if (command === 'wednesday' || command === 'wednesdays') {
+    return function(options, session) {
+      session.send('https://www.youtube.com/watch?v=du-TY1GUFGk');
     };
   } else if (whitelist && (command === 'event' || command === 'events')) {
     return commandEvents;
