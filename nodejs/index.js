@@ -512,7 +512,12 @@ function getCommandFunction(options) {
       message === 'gd' || message === 'god dam' || message === 'god damn' ||
       message === 'goddam' || message === 'goddamn') {
     return function(options, session) {
-      session.send('https://media.giphy.com/media/VnG2IuHsfdSmc/giphy.gif');
+      var gifs = [
+        'https://media.giphy.com/media/RrEC4vRbbkLEA/giphy.gif',
+        'https://media.giphy.com/media/VnG2IuHsfdSmc/giphy.gif'
+      ];
+
+      session.send(gifs[Math.floor(Math.random() * gifs.length)]);
     }
   } else if (command === 'gif') {
     return commandGif;
