@@ -554,6 +554,11 @@ function getCommandFunction(options) {
       postGif('puppies', session);
       postGif('puppies', session);
     };
+  } else if (command === 'thomas') {
+    return function(options, session) {
+      session.send(
+        'https://www.youtube.com/watch?v=ETfiUYij5UE');
+    };
   } else if (command === 'wednesday' || command === 'wednesdays') {
     return function(options, session) {
       session.send('https://www.youtube.com/watch?v=du-TY1GUFGk');
