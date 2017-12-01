@@ -498,6 +498,10 @@ function getCommandFunction(options) {
 
   if (command === 'beer') {
     return commandBeer;
+  } else if (command === 'bunny' || command === 'hawk') {
+    return function(options, session) {
+      session.send('https://youtu.be/5llVTH1mXPw?t=32');
+    };
   } else if (
       command === 'diaf' || command === 'die' || message === 'go away' ||
       message === 'kill yourself' || message === 'shut up') {
