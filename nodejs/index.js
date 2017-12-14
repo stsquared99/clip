@@ -512,6 +512,11 @@ function getCommandFunction(options) {
     };
   } else if (command === 'fig') {
     return commandFig;
+  } else if (command === 'gandalf') {
+    return function(options, session) {
+      session.send(
+        'https://www.youtube.com/watch?v=2rCP4CRRO7E');
+    };
   } else if (
       message === 'gd' || message === 'god dam' || message === 'god damn' ||
       message === 'goddam' || message === 'goddamn') {
