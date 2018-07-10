@@ -1057,6 +1057,10 @@ data
 // =========================================================
 
 bot.dialog('/', function(session) {
+  console.log(session);
+
+  return;
+
   var options = parseOptions(session);
 
   var commandFunction = getCommandFunction(options);
