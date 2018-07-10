@@ -1064,13 +1064,9 @@ data
 bot.dialog('/', function(session) {
   var options = parseOptions(session);
 
-  console.log(options);
-
   if (options.channelId === 'slack' && !options.text.startsWith('clip')) {
-    console.log('bad slack message');
+    console.log('Skipping non-relevant slack mssage.');
   }
-
-  return;
 
   var commandFunction = getCommandFunction(options);
 
