@@ -743,6 +743,9 @@ function parseOptions(session) {
   console.log('firstName: ', firstName);
 
   var channelId = session.message.address.channelId;
+
+  console.log('channelId: ', channelId);
+
   var conversationId = session.message.address.conversation.id;
 
   console.log('conversationId: ', conversationId);
@@ -763,6 +766,7 @@ function parseOptions(session) {
 
   return {
     command: command,
+    channelId: channelId,
     conversationId: conversationId,
     firstName: firstName,
     message: message,
@@ -1057,11 +1061,14 @@ data
 // =========================================================
 
 bot.dialog('/', function(session) {
-  console.log(session);
+  var options = parseOptions(session);
+
+  console.log(options);
+  if (options.channelId === 'slack' && !options.message.startsWith("clip")) {
+    console.log('bad slack message');
+  }
 
   return;
-
-  var options = parseOptions(session);
 
   var commandFunction = getCommandFunction(options);
 
