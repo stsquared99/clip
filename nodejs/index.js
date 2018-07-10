@@ -774,6 +774,7 @@ function parseOptions(session) {
     parametersLower: parametersLower,
     parameters: parameters,
     session: session,
+    text: text,
     userName: userName,
     userId: userId,
     whitelist: whitelist,
