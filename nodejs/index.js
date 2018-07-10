@@ -1064,7 +1064,8 @@ bot.dialog('/', function(session) {
   var options = parseOptions(session);
 
   console.log(options);
-  if (options.channelId === 'slack' && !options.message.startsWith("clip")) {
+
+  if (options.channelId === 'slack' && !options.text.startsWith('clip')) {
     console.log('bad slack message');
   }
 
