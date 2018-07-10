@@ -998,20 +998,21 @@ console.log('Scheduling Happy Hour...');
 schedule.scheduleJob('0 15 * * 5', function() {
   var happyHourAddress = {
     bot: {
-      id: '28:e2532843-f1a4-4f89-9896-a885d4d97dc0',
+      id: 'B8CK79B4P:T8BEP9CQK',
       name: 'clip',
     },
-    channelId: 'skype',
+    channelId: 'slack',
     conversation: {
-      id: '19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype',
+      id: 'B8CK79B4P:T8BEP9CQK:C8ASXQYKA',
       isGroup: true,
+      name: 'general',
      },
-    id: '1489606133275',
-    serviceUrl: 'https://smba.trafficmanager.net/apis/',
+    id: '5666f81602a9480786bc54896c04529c',
+    serviceUrl: 'https://slack.botframework.com',
     useAuth: true,
     user: {
-      id: '29:1s8dODT66xXniSr6AdqdtQZP-m-gtf4EoHG3vZL4tX58',
-      name: 'Sam Tran',
+      id: 'U8BGX53PU:T8BEP9CQK',
+      name: 'sln.t.tran',
     },
   };
 
