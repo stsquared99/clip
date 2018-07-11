@@ -1017,16 +1017,16 @@ schedule.scheduleJob('0 15 * * 5', function() {
   };
 
   var happyHourMessage =
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer) (drunk) (beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer) (drunk) (beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>' +
-    '(beer)(beer)(beer)(beer)(beer)(beer)(beer)(beer)<br/>';
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:      :beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:      :beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>' +
+    ':beer::beer::beer::beer::beer::beer::beer::beer:<br/>';
 
   var message =
     new builder.Message().address(happyHourAddress).text(happyHourMessage);
