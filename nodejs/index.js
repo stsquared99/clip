@@ -648,6 +648,21 @@ function getNextHappyHour() {
   return moment;
 }
 
+function getSlackName(userName) {
+  var slackNames = new Map([
+    ['bryceosterhaus', 'Bryce'],
+    ['christian.stokes', 'Christian'],
+    ['drew.brokke', 'Drew'],
+    ['evan.thibodeau', 'Evan'],
+    ['joel.garman', 'Joel'],
+    ['sln.t.tran', 'Sam'],
+    ['travis.r.cory', 'Travis'],
+    ['victor.ware', 'Victor'],
+  ]);
+
+  return slackNames.get(userName);
+}
+
 function getToday() {
   var today = momentjs().format('YYYY-MM-DD');
 
@@ -759,16 +774,20 @@ function parseOptions(session) {
 
   console.log('userName: ', userName);
 
+  var channelId = session.message.address.channelId;
+
+  console.log('channelId: ', channelId);
+
   var firstName =
     userName.replace(
         /^[a-z]/, userName.charAt(0).toUpperCase()
       ).replace(/ .*/, '');
 
+  if (channelId === 'slack') {
+    firstName = getSlackName(userName);
+  }
+
   console.log('firstName: ', firstName);
-
-  var channelId = session.message.address.channelId;
-
-  console.log('channelId: ', channelId);
 
   var conversationId = session.message.address.conversation.id;
 
