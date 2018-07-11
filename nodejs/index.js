@@ -797,6 +797,7 @@ function parseOptions(session) {
     '19:590fb68443b04300a81252cd86dee9ec@thread.skype',
     '19:I3RyYXZpcy5yLmNvcnkvJGMyOWM1OTc2MjEzNGUzZWY=@p2p.thread.skype',
     'B8CK79B4P:T8BEP9CQK:C8ASXQYKA',
+    'B8CK79B4P:T8BEP9CQK:D8BJBK18C',
   ];
 
   var whitelist = false;
