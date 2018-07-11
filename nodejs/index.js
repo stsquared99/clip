@@ -81,8 +81,9 @@ function commandBeer(options, session) {
   var minutes = diff.minutes() % 60;
 
   session.send(
-    '(beer) ' + days + ' days, ' + hours + ' hours, and ' + minutes +
-      ' minutes (beer)');
+    getEmoji(options.channelId, 'beer') + ' ' + days + ' days, ' + hours +
+      ' hours, and ' + minutes + ' minutes ' +
+        getEmoji(options.channelId, 'beer'));
 }
 
 function commandDie(options, session) {
@@ -590,13 +591,13 @@ function getCommandFunction(options) {
 
 function getEmoji(channelId, emoji) {
   var slackEmojis = new Map([
-    [beer, ':beer:'],
-    [bell, ':bell:'],
+    ['beer', ':beer:'],
+    ['bell', ':bell:'],
   ]);
 
   var skypeEmojis = new Map([
-    [beer, '(beer)'],
-    [bell, '(bell)'],
+    ['beer', '(beer)'],
+    ['bell', '(bell)'],
   ]);
 
   if (channelId === 'skype') {
@@ -833,9 +834,16 @@ function postGif(searchTerm, session, callback) {
 
 function scheduleTimer(timer) {
   schedule.scheduleJob(timer.name, timer.date, function() {
+    var channelId = 'skype';
+
+    if ('channelId' in timer) {
+      channelId = timer.channelId;
+    }
+
     var message =
       new builder.Message().address(timer.address).text(
-        '(bell) ' + timer.message + ' (bell)');
+        getEmoji(channelId, 'bell') + ' ' + timer.message +
+          ' ' + getEmoji(channelId, 'bell'));
 
     bot.send(message);
   });
@@ -927,6 +935,7 @@ function timerCreate(options, result, session) {
 
   var timer = {
     'address': session.message.address,
+    'channelId': options.channelId,
     'date': timerDate,
     'id': options.firstName,
     'message': message,
