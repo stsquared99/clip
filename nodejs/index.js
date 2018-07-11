@@ -834,16 +834,10 @@ function postGif(searchTerm, session, callback) {
 
 function scheduleTimer(timer) {
   schedule.scheduleJob(timer.name, timer.date, function() {
-    var channelId = 'skype';
-
-    if ('channelId' in timer) {
-      channelId = timer.channelId;
-    }
-
     var message =
       new builder.Message().address(timer.address).text(
-        getEmoji(channelId, 'bell') + ' ' + timer.message +
-          ' ' + getEmoji(channelId, 'bell'));
+        getEmoji(timer.address.channelId, 'bell') + ' ' + timer.message +
+          ' ' + getEmoji(timer.address.channelId, 'bell'));
 
     bot.send(message);
   });
@@ -935,7 +929,6 @@ function timerCreate(options, result, session) {
 
   var timer = {
     'address': session.message.address,
-    'channelId': options.channelId,
     'date': timerDate,
     'id': options.firstName,
     'message': message,
