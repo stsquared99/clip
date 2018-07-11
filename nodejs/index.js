@@ -67,7 +67,9 @@ function addEvent(eventName, callback) {
 
 function commandBeer(options, session) {
   if (isHappyHour(momentjs())) {
-    session.send('(beer) The taps are open! (beer)');
+    session.send(
+      getEmoji(options.channelId, 'beer') + ' The taps are open!' +
+        getEmoji(options.channelId, 'beer'));
 
     return;
   }
@@ -105,7 +107,8 @@ function commandDie(options, session) {
 function commandEvent(options, session) {
   if (options.parametersLower === 'nein' || options.parametersLower === 'no') {
     eventNo(options, session);
-  } else if (options.parametersLower === 'ja' || options.parametersLower === 'yes') {
+  } else if (options.parametersLower === 'ja' ||
+              options.parametersLower === 'yes') {
     eventYes(options, session);
   } else {
     eventList(options, session);
@@ -523,11 +526,11 @@ function getCommandFunction(options) {
     return function(options, session) {
       var gifs = [
         'https://media.giphy.com/media/RrEC4vRbbkLEA/giphy.gif',
-        'https://media.giphy.com/media/VnG2IuHsfdSmc/giphy.gif'
+        'https://media.giphy.com/media/VnG2IuHsfdSmc/giphy.gif',
       ];
 
       session.send(gifs[Math.floor(Math.random() * gifs.length)]);
-    }
+    };
   } else if (command === 'gif') {
     return commandGif;
   } else if (command === 'help') {
@@ -550,7 +553,7 @@ function getCommandFunction(options) {
   } else if (
       command === 'no' || command === 'nope' || command === 'puppies' ||
       command === 'puppy' || command === 'yes') {
-    return function (options, session) {
+    return function(options, session) {
       postGif(command, session);
     };
   } else if (command === 'points') {
@@ -558,7 +561,7 @@ function getCommandFunction(options) {
       session.send('Did you mean \'pod points\'?');
     };
   } else if (command === 'sfw') {
-    return function (options, session) {
+    return function(options, session) {
       postGif('puppies', session);
       postGif('puppies', session);
       postGif('puppies', session);
@@ -583,6 +586,24 @@ function getCommandFunction(options) {
   }
 
   return null;
+}
+
+function getEmoji(channelId, emoji) {
+  var slackEmojis = new Map([
+    [beer, ':beer:'],
+    [bell, ':bell:'],
+  ]);
+
+  var skypeEmojis = new Map([
+    [beer, '(beer)'],
+    [bell, '(bell)'],
+  ]);
+
+  if (channelId === 'skype') {
+    return skypeEmojis.get(emoji);
+  }
+
+  return slackEmojis.get(emoji);
 }
 
 function getEvent(eventName, callback) {
@@ -710,7 +731,9 @@ function parseOptions(session) {
 
   console.log('text: ', text);
 
-  var message = text.replace(/^clip */, '').replace(/^.*?>.*?>[^a-z]*/, '').replace(/@[^ ]* */, '');
+  var message =
+    text.replace(/^clip */, '').replace(/^.*?>.*?>[^a-z]*/, '')
+      .replace(/@[^ ]* */, '');
 
   console.log('message: ', message);
 
@@ -1084,7 +1107,8 @@ bot.dialog('/', function(session) {
           'Oops, I had trouble checking for events. Please try again later.');
       } else if (options.command === result) {
         commandEvent(options, session);
-      } else if (options.parametersLower === 'ja' || options.parametersLower === 'yes') {
+      } else if (options.parametersLower === 'ja' ||
+                  options.parametersLower === 'yes') {
         if (result) {
           session.send('Did you mean \'' + result + '\'?');
 
