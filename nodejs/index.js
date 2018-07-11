@@ -1111,7 +1111,7 @@ bot.dialog('/', function(session) {
   var options = parseOptions(session);
 
   if (options.channelId === 'slack' && !options.text.startsWith('clip')) {
-    console.log('Skipping non-relevant slack mssage.');
+    console.log('Skipping non-relevant slack message.');
 
     return;
   }
