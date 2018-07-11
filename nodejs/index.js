@@ -129,7 +129,7 @@ function commandEvents(options, session) {
 
     addEvent(eventName, function(error) {
       if (error) {
-        console.log(error);
+        console.error(error);
 
         postError(
           session,
@@ -732,6 +732,51 @@ function isHappyHour(moment) {
   return false;
 }
 
+function isTheDoctorIn(options, session) {
+  if (options.userName === 'drew.brokke') {
+    data
+    .where('id', '=', 'timestamp')
+    .get('doctor')
+    .then(function(results) {
+      var initDoctor = false;
+
+      if (!results[0]) {
+        initDoctor = true;
+      }
+
+      var today = getToday();
+
+      if (initDoctor || results[0].date !== today) {
+        session.send('THE DOCTOR IS IN');
+        session.send(':dr-blow-love-sugar: :dr-blow-love-sugar: :dr-blow-love-sugar:');
+
+        if (initDoctor) {
+          data.create('doctor', {
+            'date': today,
+            'id': 'timestamp',
+          }).then(function(response) {
+            console.log(response);
+          }).catch(function(error) {
+            console.error(error);
+          });
+
+          return;
+        }
+
+        data.update('doctor/timestamp', {
+          'date': today,
+        }).then(function(response) {
+          console.log(response);
+        }).catch(function(error) {
+          console.error(error);
+        });
+      }
+    }).catch(function(error) {
+      console.error(error);
+    });
+  }
+}
+
 function isValidTriviaAnswer(string) {
   if (string === 'a' || string === 'b' || string === 'c' || string === 'd' ||
       string === 'A' || string === 'B' || string === 'C' || string === 'D') {
@@ -838,7 +883,7 @@ function postError(session, message) {
 function postGif(searchTerm, session, callback) {
   giphyTranslate(searchTerm, function(error, url) {
     if (url == null) {
-      console.log(error);
+      console.error(error);
 
       session.send('Sorry, I could not find a gif for: ' + searchTerm);
     } else {
@@ -1112,6 +1157,9 @@ bot.dialog('/', function(session) {
 
   if (options.channelId === 'slack' && !options.text.startsWith('clip')) {
     console.log('Skipping non-relevant slack message.');
+    console.log('Checking for the doctor.');
+
+    isTheDoctorIn(options, session);
 
     return;
   }
@@ -1138,7 +1186,7 @@ bot.dialog('/', function(session) {
 
         addEvent(options.command, function(error) {
           if (error) {
-            console.log(error);
+            console.error(error);
 
             postError(
               session,
