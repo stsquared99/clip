@@ -852,18 +852,18 @@ function parseOptions(session) {
   console.log('whitelist: ', whitelist);
 
   return {
-    command: command,
     channelId: channelId,
+    command: command,
     conversationId: conversationId,
     firstName: firstName,
     message: message,
     messageLower: messageLower,
-    parametersLower: parametersLower,
     parameters: parameters,
+    parametersLower: parametersLower,
     session: session,
     text: text,
-    userName: userName,
     userId: userId,
+    userName: userName,
     whitelist: whitelist,
   };
 }
