@@ -1,7 +1,10 @@
 module.exports = {
-    "extends": "google",
-    "rules": {
-      "no-var": "off",
-      "require-jsdoc": "off"
-    }
+  "extends": "google",
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "rules": {
+    "no-var": "off",
+    "require-jsdoc": "off"
+  }
 };

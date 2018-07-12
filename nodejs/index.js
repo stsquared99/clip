@@ -674,37 +674,34 @@ function getTrivia() {
   return triviaArray[Math.floor(Math.random() * triviaArray.length)];
 }
 
-function giphyTranslate(searchTerm, callback) {
-  giphy.translate({
-    rating: 'g',
-    s: searchTerm,
-  }, function(error, response) {
-    if (error) {
-      console.error(error);
+function giphyTranslate(searchTerm) {
+  return new Promise((resolve, reject)=>{
+    giphy.translate({
+      rating: 'g',
+      s: searchTerm,
+    }, function(error, response) {
+      if (error) {
+        reject(error);
 
-      callback(error, null);
+        return;
+      }
 
-      return;
-    }
+      try {
+        var dataJSON = response['data'];
 
-    try {
-      var dataJSON = response['data'];
+        var imagesJSON = dataJSON.images;
 
-      var imagesJSON = dataJSON.images;
+        var originalJSON = imagesJSON.original;
 
-      var originalJSON = imagesJSON.original;
+        var url = originalJSON.url;
 
-      var url = originalJSON.url;
+        console.log('Giphy translate url: ', url);
 
-      console.log('Giphy translate url: ', url);
-
-      callback(null, url);
-    } catch (exception) {
-      console.error(exception);
-      console.log('Giphy translate url: ', null);
-
-      callback(exception, null);
-    }
+        resolve(url);
+      } catch (exception) {
+        reject(exception);
+      }
+    });
   });
 }
 
@@ -882,18 +879,12 @@ function postError(session, message) {
 }
 
 function postGif(searchTerm, session, callback) {
-  giphyTranslate(searchTerm, function(error, url) {
-    if (url == null) {
-      console.error(error);
+  giphyTranslate(searchTerm).then(function(url) {
+    session.send(filterGif(url));
+  }).catch(function(error) {
+    console.error(error);
 
-      session.send('Sorry, I could not find a gif for: ' + searchTerm);
-    } else {
-      session.send(filterGif(url));
-    }
-
-    if (callback) {
-      callback();
-    }
+    session.send('Sorry, I could not find a gif for: ' + searchTerm);
   });
 }
 
