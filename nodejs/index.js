@@ -1147,13 +1147,16 @@ data
 bot.dialog('/', function(session) {
   var options = parseOptions(session);
 
-  if (options.channelId === 'slack' && !options.text.startsWith('clip')) {
-    console.log('Skipping non-relevant slack message.');
+  if (options.channelId === 'slack') {
     console.log('Checking for the doctor.');
 
     isTheDoctorIn(options, session);
 
-    return;
+    if (!options.text.startsWith('clip')) {
+      console.log('Skipping non-relevant slack message.');
+
+      return;
+    }
   }
 
   var commandFunction = getCommandFunction(options);
