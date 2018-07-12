@@ -748,7 +748,8 @@ function isTheDoctorIn(options, session) {
 
       if (initDoctor || results[0].date !== today) {
         session.send('THE DOCTOR IS IN');
-        session.send(':dr-blow-love-sugar: :dr-blow-love-sugar: :dr-blow-love-sugar:');
+        session.send(
+          ':dr-blow-love-sugar: :dr-blow-love-sugar: :dr-blow-love-sugar:');
 
         if (initDoctor) {
           data.create('doctor', {
