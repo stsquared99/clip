@@ -679,13 +679,7 @@ function giphyTranslate(searchTerm) {
     giphy.translate({
       rating: 'g',
       s: searchTerm,
-    }, function(error, response) {
-      if (error) {
-        reject(error);
-
-        return;
-      }
-
+    }).then(function(response) {
       try {
         var dataJSON = response['data'];
 
@@ -698,9 +692,11 @@ function giphyTranslate(searchTerm) {
         console.log('Giphy translate url: ', url);
 
         resolve(url);
-      } catch (exception) {
-        reject(exception);
+      } catch (error) {
+        reject(error);
       }
+    }).catch(function(error) {
+      reject(error);
     });
   });
 }
@@ -878,13 +874,17 @@ function postError(session, message) {
   session.send('Oops, something went wrong. Please try again later.');
 }
 
-function postGif(searchTerm, session, callback) {
-  giphyTranslate(searchTerm).then(function(url) {
-    session.send(filterGif(url));
-  }).catch(function(error) {
-    console.error(error);
+function postGif(searchTerm, session) {
+  return new Promise((resolve, reject)=>{
+    giphyTranslate(searchTerm).then(function(url) {
+      session.send(filterGif(url));
 
-    session.send('Sorry, I could not find a gif for: ' + searchTerm);
+      resolve();
+    }).catch(function(error) {
+      console.error(error);
+
+      session.send('Sorry, I could not find a gif for: ' + searchTerm);
+    });
   });
 }
 
@@ -1267,7 +1267,7 @@ bot.dialog('/trivia', [
           if (correct) {
             session.send('(party) Correct! (party)');
           } else {
-            postGif('wrong', session, function() {
+            postGif('wrong', session).then(function() {
               session.send(
                 'The correct answer is ' + session.userData['triviaChoice'] +
                   ': ' + session.userData['triviaAnswer']);
