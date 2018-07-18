@@ -174,6 +174,7 @@ function commandHelp(options, session) {
     '**clip beer**<br/>' +
     '**clip fig {search term}**<br/>' +
     '**clip gif {search term}**<br/>' +
+    '**clip google {search string}**<br/>' +
     '**clip sfw**';
 
   var whitelistResponse =
@@ -530,6 +531,12 @@ function getCommandFunction(options) {
       ];
 
       session.send(gifs[Math.floor(Math.random() * gifs.length)]);
+    };
+  } else if (command === 'google' || command === 'search') {
+    return function(options, session) {
+      var searchUrl = 'https://www.google.com/search?q=' + options.parameters;
+
+      session.send(encodeURI(searchUrl));
     };
   } else if (command === 'gif') {
     return commandGif;
