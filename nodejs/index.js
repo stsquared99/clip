@@ -86,24 +86,6 @@ function commandBeer(options, session) {
         getEmoji(options.channelId, 'beer'));
 }
 
-function commandDie(options, session) {
-  var dieResponses = [
-    'Did you mean \'Your mom\'?',
-    'Good, good. Give in to your anger',
-    'Good, good. Let the hate flow through you',
-    'Haters gonna hate',
-    'I know where you live',
-    'I\'m the captain now',
-    'Launch sequence initiated',
-    'Sometimes I watch you sleep',
-    'Take it back',
-    'You first',
-  ];
-
-  session.send(
-    dieResponses[Math.floor(Math.random() * dieResponses.length)]);
-}
-
 function commandEvent(options, session) {
   if (options.parametersLower === 'nein' || options.parametersLower === 'no') {
     eventNo(options, session);
@@ -506,10 +488,6 @@ function getCommandFunction(options) {
     return function(options, session) {
       session.send('https://youtu.be/5llVTH1mXPw?t=32');
     };
-  } else if (
-      command === 'diaf' || command === 'die' || message === 'go away' ||
-      message === 'kill yourself' || message === 'shut up') {
-    return commandDie;
   } else if (command === 'duel') {
     return function(options, session) {
       session.send('Did you mean \'pod duel\'?');
