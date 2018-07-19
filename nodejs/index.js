@@ -545,6 +545,11 @@ function getCommandFunction(options) {
     return function(options, session) {
       session.send('Did you mean \'pod points\'?');
     };
+  } else if (command === 'reckless') {
+    return function(options, session) {
+      session.send(
+        'https://www.facebook.com/coryasburymusic/videos/10160672435700171');
+    };
   } else if (command === 'sfw') {
     return function(options, session) {
       postGif('puppies', session);
