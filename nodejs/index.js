@@ -1150,7 +1150,7 @@ bot.dialog('/', function(session) {
 
     isTheDoctorIn(options, session);
 
-    if (!options.text.startsWith('clip')) {
+    if (!options.text.startsWith('clip') && !options.text.startsWith('@clip')) {
       console.log('Skipping non-relevant slack message.');
 
       return;
