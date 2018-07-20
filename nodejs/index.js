@@ -29,39 +29,47 @@ function abortDialog(session, error, message) {
   session.cancelDialog();
 }
 
-function addEvent(eventName, callback) {
-  data
-  .where('id', '=', eventName)
-  .get('events')
-  .then(function(results) {
-    var today = getToday();
+function addEvent(eventName) {
+  return new Promise((resolve, reject)=>{
+    data
+    .where('id', '=', eventName)
+    .get('events')
+    .then(function(results) {
+      var today = getToday();
 
-    if (results[0]) {
-      data.update('events/' + eventName, {
+      if (results[0]) {
+        data.update('events/' + eventName, {
+          'date': today,
+        }).then(function(response) {
+          console.log(response);
+
+          resolve();
+        }).catch(function(error) {
+          console.error(error);
+
+          reject(error);
+        });
+
+        return;
+      }
+
+      data.create('events', {
         'date': today,
+        'id': eventName,
       }).then(function(response) {
         console.log(response);
 
-        callback(null);
+        resolve();
       }).catch(function(error) {
-        callback(error);
+        console.error(error);
+
+        reject(error);
       });
-
-      return;
-    }
-
-    data.create('events', {
-      'date': today,
-      'id': eventName,
-    }).then(function(response) {
-      console.log(response);
-
-      callback(null);
     }).catch(function(error) {
-      callback(error);
+      console.error(error);
+
+      reject(error);
     });
-  }).catch(function(error) {
-    callback(error);
   });
 }
 
@@ -109,18 +117,14 @@ function commandEvents(options, session) {
       return;
     }
 
-    addEvent(eventName, function(error) {
-      if (error) {
-        console.error(error);
-
-        postError(
-          session,
-          'Oops, I had trouble adding the event. Please try again later');
-
-        return;
-      }
-
+    addEvent(eventName).then(function() {
       eventsList(options, session);
+    }).catch(function(error) {
+      postError(
+        session,
+        'Oops, I had trouble adding the event. Please try again later');
+
+      return;
     });
   }
 }
@@ -598,23 +602,27 @@ function getEmoji(channelId, emoji) {
   return slackEmojis.get(emoji);
 }
 
-function getEvent(eventName, callback) {
-  var today = getToday();
+function getEvent(eventName) {
+  return new Promise((resolve, reject)=>{
+    var today = getToday();
 
-  data
-  .where('date', '=', today)
-  .get('events')
-  .then(function(results) {
-    var events = [];
-    var i = results.length;
+    data
+    .where('date', '=', today)
+    .get('events')
+    .then(function(results) {
+      var events = [];
+      var i = results.length;
 
-    while (i--) {
-      events.push(results[i].id);
-    }
+      while (i--) {
+        events.push(results[i].id);
+      }
 
-    callback(null, didyoumean(eventName, events));
-  }).catch(function(error) {
-    callback(error, null);
+      resolve(didyoumean(eventName, events));
+    }).catch(function(error) {
+      console.error(error);
+
+      reject(error);
+    });
   });
 }
 
@@ -1154,12 +1162,8 @@ bot.dialog('/', function(session) {
   if (commandFunction) {
     commandFunction(options, session);
   } else if (options.whitelist) {
-    getEvent(options.command, function(error, result) {
-      if (error) {
-        postError(
-          session, error,
-          'Oops, I had trouble checking for events. Please try again later.');
-      } else if (options.command === result) {
+    getEvent(options.command).then(function(result) {
+      if (options.command === result) {
         commandEvent(options, session);
       } else if (options.parametersLower === 'ja' ||
                   options.parametersLower === 'yes') {
@@ -1169,24 +1173,24 @@ bot.dialog('/', function(session) {
           return;
         }
 
-        addEvent(options.command, function(error) {
-          if (error) {
-            console.error(error);
-
-            postError(
-              session,
-              'Oops, I had trouble adding the event. Please try again later');
-
-              return;
-          }
-
+        addEvent(options.command).then(function() {
           commandEvent(options, session);
+        }).catch(function(error) {
+          postError(
+            session,
+            'Oops, I had trouble adding the event. Please try again later');
+
+          return;
         });
       } else if (result) {
         session.send('Did you mean \'' + result + '\'?');
       } else {
         commandInvalid(options, session);
       }
+    }).catch(function(error) {
+        postError(
+          session,
+          'Oops, I had trouble checking for events. Please try again later.');
     });
   } else {
     commandInvalid(options, session);
