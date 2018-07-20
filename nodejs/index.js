@@ -254,12 +254,8 @@ function commandPlay(options, session) {
 }
 
 function commandTimer(options, session) {
-  validateTimer(options.firstName, function(error, result) {
-    if (error) {
-      session.send(
-        'Oops, I had trouble checking for stale timers. ' +
-          'Please try again later');
-    } else if (!options.parametersLower) {
+  validateTimer(options.firstName).then(function(result) {
+    if (!options.parametersLower) {
       timerShow(options, result, session);
     } else if (
         options.parametersLower === 'cancel' ||
@@ -270,6 +266,12 @@ function commandTimer(options, session) {
     } else {
       timerCreate(options, result, session);
     }
+  }).catch(function(error) {
+    console.error(error);
+
+    session.send(
+      'Oops, I had trouble checking for stale timers. ' +
+        'Please try again later');
   });
 }
 
@@ -1012,30 +1014,28 @@ function timerShow(options, result, session) {
       momentjs(result.date).format('YYYY-MM-DD HH:mm:ss'));
 }
 
-function validateTimer(name, callback) {
-  data
-  .where('id', '=', name)
-  .get('timer')
-  .then(function(results) {
-    if (results[0] && isExpiredDate(results[0].date)) {
-      console.log('Clearing expired timer');
+function validateTimer(name) {
+  return new Promise((resolve, reject)=>{
+    data
+    .where('id', '=', name)
+    .get('timer')
+    .then(function(results) {
+      if (results[0] && isExpiredDate(results[0].date)) {
+        console.log('Clearing expired timer');
 
-      data.delete('timer/' + name).then(function() {
-        callback(null, null);
-      }).catch(function(error) {
-        console.error(error);
-
-        callback(error, null);
-      });
-    } else if (results[0]) {
-      callback(null, results[0]);
-    } else {
-      callback(null, null);
-    }
-  }).catch(function(error) {
-    console.error(error);
-
-    callback(error, null);
+        data.delete('timer/' + name).then(function() {
+          resolve(null);
+        }).catch(function(error) {
+          reject(error);
+        });
+      } else if (results[0]) {
+        resolve(results[0]);
+      } else {
+        resolve(null);
+      }
+    }).catch(function(error) {
+      reject(error);
+    });
   });
 }
 
