@@ -358,9 +358,9 @@ function eventNo(options, session) {
   .get(eventPath)
   .then(function(results) {
     if (results[0]) {
-      data.delete(userPath).then(function() {
-        eventList(options, session);
-      }).catch(function(error) {
+      data.delete(userPath)
+      .then((options, session)=>eventList(options, session))
+      .catch(function(error) {
         console.error(error);
 
         postError(
@@ -748,22 +748,16 @@ function isTheDoctorIn(options, session) {
           data.create('doctor', {
             'date': today,
             'id': 'timestamp',
-          }).then(function(response) {
-            console.log(response);
-          }).catch(function(error) {
-            console.error(error);
-          });
+          }).then((response)=>console.log(response))
+          .catch((response)=>console.log(response));
 
           return;
         }
 
         data.update('doctor/timestamp', {
           'date': today,
-        }).then(function(response) {
-          console.log(response);
-        }).catch(function(error) {
-          console.error(error);
-        });
+        }).then((response)=>console.log(response))
+        .catch((response)=>console.log(response));
       }
     }).catch(function(error) {
       console.error(error);
@@ -912,9 +906,9 @@ function timerCancel(options, result, session) {
     job.cancel();
   }
 
-  data.delete('timer/' + options.firstName).then(function() {
-    session.send('Your timer has been cancelled');
-  }).catch(function(error) {
+  data.delete('timer/' + options.firstName)
+  .then(()=>session.send('Your timer has been cancelled'))
+  .catch(function(error) {
     console.error(error);
 
     postError(
