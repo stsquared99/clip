@@ -749,7 +749,7 @@ function isTheDoctorIn(options, session) {
             'date': today,
             'id': 'timestamp',
           }).then((response)=>console.log(response))
-          .catch((response)=>console.log(response));
+          .catch((error)=>console.error(error));
 
           return;
         }
@@ -757,7 +757,7 @@ function isTheDoctorIn(options, session) {
         data.update('doctor/timestamp', {
           'date': today,
         }).then((response)=>console.log(response))
-        .catch((response)=>console.log(response));
+        .catch((error)=>console.error(error));
       }
     }).catch(function(error) {
       console.error(error);
