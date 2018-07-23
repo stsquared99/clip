@@ -41,12 +41,8 @@ function addEvent(eventName) {
         data.update('events/' + eventName, {
           'date': today,
         }).then(function(response) {
-          console.log(response);
-
-          resolve();
+          resolve(response);
         }).catch(function(error) {
-          console.error(error);
-
           reject(error);
         });
 
@@ -57,19 +53,17 @@ function addEvent(eventName) {
         'date': today,
         'id': eventName,
       }).then(function(response) {
-        console.log(response);
-
-        resolve();
+        resolve(response);
       }).catch(function(error) {
-        console.error(error);
-
         reject(error);
       });
     }).catch(function(error) {
-      console.error(error);
-
       reject(error);
     });
+  }).then(function(response) {
+    console.log(response);
+  }).catch(function(error) {
+    console.error(error);
   });
 }
 
